@@ -37,20 +37,20 @@ def open_multiple_paths(paths: list):
     return sorted(all_paths)
 
 
-DYJetsToLL_M_50_path = open_multiple_paths(['/ceph/ehettwer/ntuples/WH_full/CROWNRun/2018/DYJetsToLL_M-50*/wh_mmm/*.root'])
-DYJetsToLL_M_100_path = open_multiple_paths(['/ceph/ehettwer/ntuples/WH_full/CROWNRun/2018/DYJetsToLL_M-100*/wh_mmm/*.root'])
+DYJetsToLL_M_50_path = open_multiple_paths(['/ceph/ehettwer/ntuples/WH_full/CROWNRun/2018/DYJetsToLL_M-50*/*/*.root'])
+DYJetsToLL_M_100_path = open_multiple_paths(['/ceph/ehettwer/ntuples/WH_full/CROWNRun/2018/DYJetsToLL_M-100*/*/*.root'])
 
-EWK_LLJJ_path = open_multiple_paths(['/ceph/ehettwer/ntuples/WH_full/CROWNRun/2018/EWK_LLJJ*/wh_mmm/*.root'])
+EWK_LLJJ_path = open_multiple_paths(['/ceph/ehettwer/ntuples/WH_full/CROWNRun/2018/EWK_LLJJ*/*/*.root'])
 
-ST_t_top_path = open_multiple_paths(['/ceph/ehettwer/ntuples/WH_full/CROWNRun/2018/ST_t-channel_top_5f*/wh_mmm/*.root'])
-ST_t_antitop_path = open_multiple_paths(['/ceph/ehettwer/ntuples/WH_full/CROWNRun/2018/ST_t-channel_antitop_5f*/wh_mmm/*.root'])
-TTTo2L2Nu_path = open_multiple_paths(['/ceph/ehettwer/ntuples/WH_full/CROWNRun/2018/TTTo2L2Nu*/wh_mmm/*.root'])
-TTToSemiLeptonic_path = open_multiple_paths(['/ceph/ehettwer/ntuples/WH_full/CROWNRun/2018/TTToSemiLeptonic*/wh_mmm/*.root'])
+ST_t_top_path = open_multiple_paths(['/ceph/ehettwer/ntuples/WH_full/CROWNRun/2018/ST_t-channel_top_5f*/*/*.root'])
+ST_t_antitop_path = open_multiple_paths(['/ceph/ehettwer/ntuples/WH_full/CROWNRun/2018/ST_t-channel_antitop_5f*/*/*.root'])
+TTTo2L2Nu_path = open_multiple_paths(['/ceph/ehettwer/ntuples/WH_full/CROWNRun/2018/TTTo2L2Nu*/*/*.root'])
+TTToSemiLeptonic_path = open_multiple_paths(['/ceph/ehettwer/ntuples/WH_full/CROWNRun/2018/TTToSemiLeptonic*/*/*.root'])
 
-WWTo2L2Nu_path = open_multiple_paths(['/ceph/ehettwer/ntuples/WH_full/CROWNRun/2018/WWTo2L2Nu*/wh_mmm/*.root'])
-WZTo3LNu_path = open_multiple_paths(['/ceph/ehettwer/ntuples/WH_full/CROWNRun/2018/WZTo3LNu*/wh_mmm/*.root'])
-ZZTo2L2Nu_path = open_multiple_paths(['/ceph/ehettwer/ntuples/WH_full/CROWNRun/2018/ZZTo2L2Nu*/wh_mmm/*.root'])
-ZZTo4L_path = open_multiple_paths(['/ceph/ehettwer/ntuples/WH_full/CROWNRun/2018/ZZTo4L*/wh_mmm/*.root'])
+WWTo2L2Nu_path = open_multiple_paths(['/ceph/ehettwer/ntuples/WH_full/CROWNRun/2018/WWTo2L2Nu*/*/*.root'])
+WZTo3LNu_path = open_multiple_paths(['/ceph/ehettwer/ntuples/WH_full/CROWNRun/2018/WZTo3LNu*/*/*.root'])
+ZZTo2L2Nu_path = open_multiple_paths(['/ceph/ehettwer/ntuples/WH_full/CROWNRun/2018/ZZTo2L2Nu*/*/*.root'])
+ZZTo4L_path = open_multiple_paths(['/ceph/ehettwer/ntuples/WH_full/CROWNRun/2018/ZZTo4L*/*/*.root'])
 
 #signal_sim_path = open_multiple_paths(['/ceph/ehettwer/ntuples/signal_samples_mc_2018/CROWNRun/2018/VBFHToMuMu_M125*/vbf/*.root'])
 
@@ -70,7 +70,7 @@ dataset_nicks = ['DYJetsToLL_M-100to200_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunII
 
 
 data_paths = [DYJetsToLL_M_100_path, DYJetsToLL_M_50_path, EWK_LLJJ_path, ST_t_antitop_path, ST_t_top_path, TTTo2L2Nu_path, 
-              TTToSemiLeptonic_path, WWTo2L2Nu_path, WZTo3LNu_path, ZZTo2L2Nu_path]
+              TTToSemiLeptonic_path, WWTo2L2Nu_path, WZTo3LNu_path, ZZTo2L2Nu_path, ZZTo4L_path]
 
 ic(data_paths)
 
