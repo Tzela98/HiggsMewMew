@@ -34,7 +34,6 @@ def draw_histograms(folder_path):
                 if df[column].dtype in ['int64', 'float64']:
                     print(f'Plotting histogram for {column} in {plot_name}')
                     hist, bins = np.histogram(df[column], bins=30)
-
                     plt.figure(figsize=(8, 6))
                     hep.histplot(hist, bins, yerr=False, label='Data')
                     plt.xlabel(column)
@@ -44,5 +43,5 @@ def draw_histograms(folder_path):
                     plt.close()
 
 # Provide the path to the folder containing CSV files here
-folder_path = '/ceph/ehettwer/working_data'
+folder_path = '/ceph/ehettwer/working_data/signal_region'
 draw_histograms(folder_path)
