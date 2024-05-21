@@ -19,13 +19,10 @@ class NeuralNetwork(nn.Module):
         super().__init__()
         self.flatten = nn.Flatten()
         self.linear_relu_stack = nn.Sequential(
-            nn.Linear(24, 32),
+            nn.Linear(24, 64),
             nn.ReLU(),
             nn.Dropout(0.2),  # Add dropout layer with dropout probability of 0.5
-            nn.Linear(32, 32),
-            nn.ReLU(),
-            nn.Dropout(0.2),  # Add dropout layer with dropout probability of 0.5
-            nn.Linear(32, 32),
+            nn.Linear(64, 32),
             nn.ReLU(),
             nn.Dropout(0.2),  # Add dropout layer with dropout probability of 0.5
             nn.Linear(32, 1),
@@ -109,8 +106,8 @@ k_folds = 5
 kf = KFold(n_splits=k_folds, shuffle=True, random_state=42)
 
 # Define the number of epochs
-epochs = range(10)  # Adjust the number of epochs as needed
-batch_size = 64
+epochs = range(50)  # Adjust the number of epochs as needed
+batch_size = 32
 learning_rate = 0.001
 
 final_test_losses = []
