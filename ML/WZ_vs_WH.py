@@ -26,13 +26,13 @@ class BinaryClassifier(nn.Module):
         super().__init__()
         self.flatten = nn.Flatten()
         self.network = nn.Sequential(
-            nn.Linear(24, 128),
+            nn.Linear(24, 256),
             nn.ReLU(),
-            # nn.Dropout(0.2),  # Add dropout layer with dropout probability of 0.2
-            nn.Linear(128, 64),
+            # nn.Dropout(0.1),  # Add dropout layer with dropout probability of 0.2
+            nn.Linear(256, 256),
             nn.ReLU(),
-            # nn.Dropout(0.2),  # Add dropout layer with dropout probability of 0.2
-            nn.Linear(64, 1),
+            # nn.Dropout(0.1),  # Add dropout layer with dropout probability of 0.2
+            nn.Linear(256, 1),
             # nn.Sigmoid()
             # This last sigmoid function depends on the loss function used
         )
@@ -162,7 +162,7 @@ def evaluate_model(valid_loader, model, criterion, device):
             loss = criterion(outputs, labels)
             running_loss += loss.item() * inputs.size(0)
             # Apply sigmoid to outputs to get predictions as BCEWithLogitsLoss expects unscaled outputs
-            pred = (torch.sigmoid(outputs) > 0.5).float()
+            pred = (torch.sigmoid(outputs) > 0.75).float()
 
             all_preds.extend(pred.cpu().numpy())
             all_labels.extend(labels.cpu().numpy())
@@ -184,7 +184,7 @@ def plot_training_log(log_data, fold_num):
     ax[1].set_ylabel('Accuracy')
     ax[1].legend()
 
-    plt.savefig(f'/work/ehettwer/HiggsMewMew/ML/plots/fold_{fold_num}_training_log_weighted.png')
+    plt.savefig(f'/work/ehettwer/HiggsMewMew/ML/plots/fold_{fold_num}_training_log_weighted_256_256_128batches_lr0025_thr75.png')
 
 
 def kfold_cross_validation(dataset, k=5, num_epochs=20, batch_size=128, learning_rate=0.005):
@@ -231,7 +231,7 @@ def kfold_cross_validation(dataset, k=5, num_epochs=20, batch_size=128, learning
                 best_accuracy = val_accuracy
                 best_model = model.state_dict()
         
-        torch.save(model.state_dict(), f'/work/ehettwer/HiggsMewMew/ML/model_cache/weighted_model_128batches_lr004.pth')
+        torch.save(model.state_dict(), f'/work/ehettwer/HiggsMewMew/ML/model_cache/weighted_256_256_128batches_lr0025_thr75.pth')
         plot_training_log(log_data, fold)
 
     return best_model
@@ -258,10 +258,10 @@ csv_paths = [
 ]
 
 
-k = 5
+k = 4
 num_epochs = 80
 batch_size = 128
-learning_rate = 0.004
+learning_rate = 0.0025
 
 # Load Data once
 dataset = NtupleDataclass(csv_paths)
