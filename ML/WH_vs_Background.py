@@ -23,6 +23,10 @@ hep.style.use(hep.style.CMS)
 hep.cms.label(loc=0)
 
 
+# Deep Neural Network to classify signal vs background
+# The model is a binary classifier with 19 input features. 
+# This can be varied as the number of features in the dataset might change.
+# It includes Dropout and Batch Normalization layers to prevent overfitting.
 class BinaryClassifier(nn.Module):
     def __init__(self, input_size=19, hidden_1=256, hidden_2=128, output_size=1):
         super().__init__()
@@ -46,7 +50,12 @@ class BinaryClassifier(nn.Module):
         x = self.network[6](x)
         return x
 
-
+# NtupleDataclass is a custom Dataset class that reads data from CSV files.
+# It can be used to create a DataLoader for training and testing datasets.
+# It also calculates class weights for imbalanced datasets.
+# The class is designed to work with the BinaryClassifier model.
+# The last column of the CSV file is assumed to be the label column.
+# The class assumes that the data is preprocessed and ready for training.
 class NtupleDataclass(Dataset):
     def __init__(self, csv_paths: list, device='cuda', transform=None):
         self.data_frames = [pd.read_csv(path) for path in csv_paths]
@@ -80,6 +89,7 @@ class NtupleDataclass(Dataset):
 
     def __getitem__(self, idx):
         # Select all columns except the last one as features
+        # Data needs to be preprocessed before training
         features = self.train_df.iloc[idx, :-6].values.astype('float32')
         nfeatures = len(features)
 
@@ -109,6 +119,8 @@ class NtupleDataclass(Dataset):
         return feature_names, features, labels
 
 
+# train_model function trains the model for one epoch using the training data.
+# returns: average loss for the epoch.
 def train_model(train_loader, model, criterion, optimizer, device, clip_grad=None):
     model.train()
     running_loss = 0.0
@@ -151,6 +163,8 @@ def train_model(train_loader, model, criterion, optimizer, device, clip_grad=Non
     return avg_loss
 
 
+# evaluate_model function evaluates the model using the validation data.
+# returns: average loss, accuracy, and predictions for the validation data.
 def evaluate_model(valid_loader, model, criterion, device, threshold=0.5):
     model.eval()
     all_preds = []
@@ -198,6 +212,8 @@ def evaluate_model(valid_loader, model, criterion, device, threshold=0.5):
     return avg_loss, accuracy, all_outputs, all_labels
 
 
+# plot_training_log function plots the training log data.
+# log_data: list of dictionaries containing training log data.
 def plot_training_log(log_data, epoch, save_path='/work/ehettwer/HiggsMewMew/ML/tmp/'):
     fig, ax = plt.subplots(1, 2, figsize=(12, 6))
     ax[0].plot([entry['epoch'] for entry in log_data], [entry['train_loss'] for entry in log_data], label='Train Loss')
@@ -215,6 +231,9 @@ def plot_training_log(log_data, epoch, save_path='/work/ehettwer/HiggsMewMew/ML/
     plt.close()
 
 
+# plot_histogram function plots the histogram of model outputs for signal and background events.
+# valid_outputs: list of model outputs for validation data (float).
+# valid_labels: list of labels for validation data (0 or 1).
 def plot_histogram(valid_outputs, valid_labels, epoch, save_path='/work/ehettwer/HiggsMewMew/ML/tmp/'):
     fig, ax = plt.subplots()
 
@@ -245,6 +264,9 @@ def plot_histogram(valid_outputs, valid_labels, epoch, save_path='/work/ehettwer
     plt.close()
 
 
+# plot_roc_curve function plots the Receiver Operating Characteristic (ROC) curve.
+# valid_outputs: list of model outputs for validation data (float).
+# valid_labels: list of labels for validation data (0 or 1).
 def plot_roc_curve(valid_outputs, valid_labels, epoch, save_path='/work/ehettwer/HiggsMewMew/ML/tmp/'):
     # Calculate the false positive rate, true positive rate, and threshold values
     fpr, tpr, thresholds = roc_curve(valid_labels, valid_outputs)
@@ -266,6 +288,10 @@ def plot_roc_curve(valid_outputs, valid_labels, epoch, save_path='/work/ehettwer
     plt.close()
 
 
+# plot_feature_importance_autograd function calculates and plots the feature importance using autograd.
+# model: trained model.
+# feature_names: list of feature names (from test data data class).
+# test_data: test data tensor.
 def plot_feature_importance_autograd(model, feature_names, test_data, device, epoch, save_path='/work/ehettwer/HiggsMewMew/ML/tmp/'):    
 
     test_data = test_data.to(device)
@@ -305,6 +331,7 @@ def plot_feature_importance_autograd(model, feature_names, test_data, device, ep
     plt.close()
 
 
+# create_directory function creates a directory if it does not exist.
 def create_directory(path):
     try:
         os.makedirs(path, exist_ok=True)
@@ -313,17 +340,8 @@ def create_directory(path):
         print(f"Error creating directory '{path}': {error}")
 
 
+# log_training_details function logs the training details to a file.
 def log_training_details(save_path, model_name, batch_size, num_epochs, learning_rate, L2_regularisation):
-
-    # Parameters:
-    # - filename (str): The name of the log file.
-    # - model_name (str): Name of the model.
-    # - model_path (str): Path where the model is saved.
-    # - batch_size (int): Size of the training batch.
-    # - num_epochs (int): Number of training epochs.
-    # - learning_rate (float): Learning rate for training.
-    # - L2_regularisation (float): L2 regularization parameter.
-
     with open(save_path + model_name + '_log', 'a') as file:
         # Get the current timestamp
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -341,6 +359,7 @@ def log_training_details(save_path, model_name, batch_size, num_epochs, learning
         file.write(log_entry)
 
 
+# get_input function gets user input and returns the default value if the input is invalid.
 def get_input(prompt, default_value, value_type):
     user_input = input(prompt).strip()
     if not user_input:
