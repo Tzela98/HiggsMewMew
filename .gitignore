@@ -6,4 +6,6 @@ root_files/
 workflow/csv_files/
 WH_analysis/tmp_plots
 ROOT_plotter/
+*.pth
+*.png
 
