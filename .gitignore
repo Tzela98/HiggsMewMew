@@ -8,4 +8,5 @@ WH_analysis/tmp_plots
 ROOT_plotter/
 *.pth
 *.png
+*.csv
 
