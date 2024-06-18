@@ -1,0 +1,8 @@
+
+Timestamp: 2024-06-07 21:52:34
+Model Name: default_model_medium_DO_largerL2
+Batch Size: 256
+Number of Epochs: 120
+Learning Rate: 0.001
+L2 Regularisation: 0.001
+----------------------------------------

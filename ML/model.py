@@ -12,7 +12,7 @@ from datetime import datetime
 
 
 class BinaryClassifier(nn.Module):
-    def __init__(self, input_size=18, hidden_1=256, hidden_2=128, output_size=1):
+    def __init__(self, input_size=21, hidden_1=256, hidden_2=128, output_size=1):
         super(BinaryClassifier, self).__init__()
         self.flatten = nn.Flatten()
         self.fc1 = nn.Linear(input_size, hidden_1)
@@ -26,9 +26,9 @@ class BinaryClassifier(nn.Module):
     def forward(self, x):
         x = self.flatten(x)
         x = F.relu(self.bn1(self.fc1(x)))
-        # x = self.dropout1(x)
+        x = self.dropout1(x)
         x = F.relu(self.bn2(self.fc2(x)))
-        # x = self.dropout2(x)
+        x = self.dropout2(x)
         x = self.fc3(x)
         return x
 

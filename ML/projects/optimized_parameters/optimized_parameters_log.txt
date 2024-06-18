@@ -1,0 +1,8 @@
+
+Timestamp: 2024-06-08 17:16:13
+Model Name: optimized_parameters
+Batch Size: 128
+Number of Epochs: 120
+Learning Rate: 0.006
+L2 Regularisation: 1e-05
+----------------------------------------

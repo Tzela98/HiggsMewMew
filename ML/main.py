@@ -1,3 +1,4 @@
+from tkinter import font
 import torch
 import torch.optim as optim
 import torch.nn as nn
@@ -6,8 +7,23 @@ from torch.utils.data import DataLoader, TensorDataset
 from dataclass import NtupleDataclass
 from model import BinaryClassifier
 from training import train_model, evaluate_model
-from plotting import plot_training_log, plot_histogram, plot_roc_curve, plot_feature_importance_autograd, ROCPlotter
+from plotting import plot_training_log, plot_histogram, plot_feature_importance_autograd, ROCPlotter
 from utils import create_directory, save_log_data, get_input
+from tayloranalysis.model_extension import extend_model 
+import itertools
+import matplotlib.pyplot as plt
+
+
+def reduce(x: torch.Tensor):
+    return torch.mean(x).cpu().detach().numpy()
+
+
+def get_feature_combis(feature_list: list, combi_list: list):
+    feature_combinations = []
+    for combination in combi_list:
+        feature_combi = tuple(feature_list[val] for val in combination)
+        feature_combinations.append(feature_combi)
+    return feature_combinations
 
 
 def main():
@@ -53,12 +69,14 @@ def main():
     save_log_data(create_path, model_name, batch_size, num_epochs, learning_rate, L2_regularisation)
 
     # Example file paths (replace with actual CSV file paths)
+    #    '/ceph/ehettwer/working_data/full_sim/ZZTo4L_TuneCP5_13TeV_powheg_pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
+    #    '/ceph/ehettwer/working_data/full_sim/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv'
+
     csv_paths = [
-    '/ceph/ehettwer/working_data/signal_region/WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18NanoAODv9-106X.csv', 
-    '/ceph/ehettwer/working_data/signal_region/WplusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
-    '/ceph/ehettwer/working_data/signal_region/WminusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
-    '/ceph/ehettwer/working_data/signal_region/ZZTo4L_TuneCP5_13TeV_powheg_pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
-    '/ceph/ehettwer/working_data/signal_region/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv'
+    '/ceph/ehettwer/working_data/small_signal_region/WZTo3LNu_mllmin0p1_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
+    '/ceph/ehettwer/working_data/small_signal_region/WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18NanoAODv9-106XZZTo2L2Nu_TuneCP5_13TeV_powheg_pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
+    '/ceph/ehettwer/working_data/small_signal_region/WplusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
+    '/ceph/ehettwer/working_data/small_signal_region/WminusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
     ]
 
     print('Sourcing the training data from the following CSV files:')
@@ -77,8 +95,8 @@ def main():
     print('Feature names:', feature_names)
 
     # Model, loss function, optimizer
-    model = BinaryClassifier()
-    # Perform log on CPU to avoid memory issues
+    WrappedModel = extend_model(BinaryClassifier)
+    model = WrappedModel()
     model.log_model_details(create_path)
     model.to(device)
 
@@ -90,6 +108,10 @@ def main():
 
     # Training loop
     log_data = []
+    tcs_training = []
+
+    combinations = [(18,), (19,), (20,)]  # 1st order taylor coefficients
+    combinations += [i for i in itertools.permutations([18, 19, 20], 2)]  # 2nd order Taylor coefficients
 
     for epoch in range(num_epochs):
         print(f"Epoch {epoch+1}/{num_epochs}")
@@ -106,6 +128,24 @@ def main():
                 'val_accuracy': accuracy
             }
         
+        tc_dict = model.get_tc(
+        "x",
+        forward_kwargs={"x": test_features.to(device)},
+        tc_idx_list=combinations,
+        reduce_func=reduce)
+
+        tcs_training.append(list(tc_dict.values()))
+        labels = get_feature_combis(feature_names, combinations)
+        labels = [",".join(label) for label in labels]
+
+        plt.figure()
+        plt.plot(tcs_training, label=labels)
+        plt.xlabel("Epoch")
+        plt.ylabel("Taylor Coefficient Value")
+        plt.legend(fontsize='xx-small')
+        plt.savefig(create_path + 'taylor_coefficients.png')
+        plt.close()
+
         log_data.append(epoch_data)
 
         # Save model checkpoint every 10 epochs
@@ -120,6 +160,20 @@ def main():
 
             torch.save(model.state_dict(), create_path + f'{model_name}_epoch{epoch + 1}.pth')
 
+            # get a set of target taylor coefficients after training
+            model.cpu()
+            tc_dict = model.get_tc(
+                "x",
+                forward_kwargs={"x": test_features},
+                tc_idx_list=combinations,
+                reduce_func=reduce)
+
+            # plot tcs after training
+            plt.title("Taylor Coefficients after Training for given Features")
+            plt.plot(labels, list(tc_dict.values()), "+", color="black", markersize=10)
+            plt.xlabel("Taylor Coefficient")
+            plt.ylabel("Taylor Coefficient Value")
+            plt.savefig(create_path + 'taylor_coefficients_after_training.png')
 
 if __name__ == "__main__":
     main()

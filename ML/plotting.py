@@ -67,7 +67,7 @@ class ROCPlotter:
 # plot_training_log function plots the training log data.
 # log_data: list of dictionaries containing training log data.
 
-def plot_training_log(log_data, epoch, save_path='/work/ehettwer/HiggsMewMew/ML/tmp/'):
+def plot_training_log(log_data, epoch, save_path='/work/ehettwer/HiggsMewMew/ML/projects/test/'):
     fig, ax = plt.subplots(1, 2, figsize=(12, 6))
     ax[0].plot([entry['epoch'] for entry in log_data], [entry['train_loss'] for entry in log_data], label='Train Loss')
     ax[0].plot([entry['epoch'] for entry in log_data], [entry['val_loss'] for entry in log_data], label='Val Loss')
@@ -88,7 +88,7 @@ def plot_training_log(log_data, epoch, save_path='/work/ehettwer/HiggsMewMew/ML/
 # valid_outputs: list of model outputs for validation data (float).
 # valid_labels: list of labels for validation data (0 or 1).
 
-def plot_histogram(valid_outputs, valid_labels, epoch, save_path='/work/ehettwer/HiggsMewMew/ML/tmp/'):
+def plot_histogram(valid_outputs, valid_labels, epoch, save_path='/work/ehettwer/HiggsMewMew/ML/projects/test/'):
     fig, ax = plt.subplots()
 
     # Initialize the lists to store outputs based on the label
@@ -122,7 +122,7 @@ def plot_histogram(valid_outputs, valid_labels, epoch, save_path='/work/ehettwer
 # valid_outputs: list of model outputs for validation data (float).
 # valid_labels: list of labels for validation data (0 or 1).
 
-def plot_roc_curve(valid_outputs, valid_labels, epoch, save_path='/work/ehettwer/HiggsMewMew/ML/tmp/'):
+def plot_roc_curve(valid_outputs, valid_labels, epoch, save_path='/work/ehettwer/HiggsMewMew/ML/projects/test/'):
     # Calculate the false positive rate, true positive rate, and threshold values
     fpr, tpr, thresholds = roc_curve(valid_labels, valid_outputs)
     
@@ -148,7 +148,7 @@ def plot_roc_curve(valid_outputs, valid_labels, epoch, save_path='/work/ehettwer
 # feature_names: list of feature names (from test data data class).
 # test_data: test data tensor.
 
-def plot_feature_importance_autograd(model, feature_names, test_data, device, epoch, save_path='/work/ehettwer/HiggsMewMew/ML/tmp/'):    
+def plot_feature_importance_autograd(model, feature_names, test_data, device, epoch, save_path='/work/ehettwer/HiggsMewMew/ML/projects/test/'):    
 
     test_data = test_data.to(device)
     test_data.requires_grad_(True)

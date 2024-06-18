@@ -1,0 +1,16 @@
+
+Timestamp: 2024-06-13 20:13:52
+Model Name: inclusion_cosThetaStar
+Batch Size: 256
+Number of Epochs: 120
+Learning Rate: 0.002
+L2 Regularisation: 0.0001
+----------------------------------------
+
+Timestamp: 2024-06-13 20:19:11
+Model Name: inclusion_cosThetaStar
+Batch Size: 256
+Number of Epochs: 120
+Learning Rate: 0.002
+L2 Regularisation: 0.0001
+----------------------------------------

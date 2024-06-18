@@ -43,5 +43,5 @@ def draw_histograms(folder_path):
                     plt.close()
 
 # Provide the path to the folder containing CSV files here
-folder_path = '/ceph/ehettwer/working_data/signal_region'
+folder_path = '/ceph/ehettwer/working_data/larger_signal_region'
 draw_histograms(folder_path)

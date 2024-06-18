@@ -1,8 +1,0 @@
-
-Timestamp: 2024-06-05 22:37:31
-Model Name: large_model_test
-Batch Size: 256
-Number of Epochs: 60
-Learning Rate: 0.002
-L2 Regularisation: 0.0001
-----------------------------------------

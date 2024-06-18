@@ -15,7 +15,7 @@ def create_directory(path):
 # save_log_data function logs the training details to a file.
 
 def save_log_data(save_path, model_name, batch_size, num_epochs, learning_rate, L2_regularisation):
-    with open(save_path + model_name + '_log', 'a') as file:
+    with open(save_path + model_name + '_log.txt', 'a') as file:
         # Get the current timestamp
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         
