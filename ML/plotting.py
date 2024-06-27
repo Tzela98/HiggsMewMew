@@ -47,7 +47,7 @@ class ROCPlotter:
         self.ax.set_title('Receiver Operating Characteristic')
         self.ax.legend(loc="lower right")
 
-        plt.savefig(self.save_path + f'ROC_Curves_{epoch+1}_epochs.png')
+        plt.savefig(self.save_path + f'ROC_Curves_{epoch+1}_epochs.png', bbox_inches='tight')
         plt.close()
 
         self.fig, self.ax = plt.subplots()  # Reset the figure for the next epoch
@@ -58,10 +58,8 @@ class ROCPlotter:
         plt.xlabel('Epoch')
         plt.ylabel('AUC')
         plt.title('AUC vs Epoch')
-        plt.savefig(self.save_path + 'AUC_vs_Epoch.png')
+        plt.savefig(self.save_path + 'AUC_vs_Epoch.png', bbox_inches='tight')
         plt.close()
-
-
 
 
 # plot_training_log function plots the training log data.
@@ -80,7 +78,7 @@ def plot_training_log(log_data, epoch, save_path='/work/ehettwer/HiggsMewMew/ML/
     ax[1].set_ylabel('Accuracy')
     ax[1].legend()
 
-    plt.savefig(save_path + f'training_log_epoch{epoch + 1}.png')
+    plt.savefig(save_path + f'training_log_epoch{epoch + 1}.png', bbox_inches="tight")
     plt.close()
 
 
@@ -114,7 +112,7 @@ def plot_histogram(valid_outputs, valid_labels, epoch, save_path='/work/ehettwer
     plt.xlabel('Prediction')
     plt.ylabel('Frequency')
 
-    plt.savefig(save_path + f'histogram_epoch{epoch + 1}.png')
+    plt.savefig(save_path + f'histogram_epoch{epoch + 1}.png', bbox_inches="tight")
     plt.close()
 
 
@@ -139,7 +137,7 @@ def plot_roc_curve(valid_outputs, valid_labels, epoch, save_path='/work/ehettwer
     plt.ylabel('True Positive Rate')
     plt.title('Receiver Operating Characteristic')
     plt.legend(loc="lower right")
-    plt.savefig(save_path + f'roc_curve_epoch{epoch + 1}.png')
+    plt.savefig(save_path + f'roc_curve_epoch{epoch + 1}.png', bbox_inches="tight")
     plt.close()
 
 
@@ -183,5 +181,5 @@ def plot_feature_importance_autograd(model, feature_names, test_data, device, ep
     plt.title('Scaled Feature Importance', fontsize=14)
     plt.xticks(rotation=90)  # Rotate x-axis labels vertically
     plt.tight_layout()  # Adjust layout to fit labels
-    plt.savefig(save_path + f'feature_importance_epoch{epoch + 1}.png')
+    plt.savefig(save_path + f'feature_importance_epoch{epoch + 1}.png', bbox_inches="tight")
     plt.close()

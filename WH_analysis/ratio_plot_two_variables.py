@@ -8,6 +8,22 @@ hep.style.use(hep.style.CMS)
 hep.cms.label(loc=0)
 
 
+def concatenate_csv(files):
+    # Create an empty list to store DataFrames
+    data_frames = []
+    
+    # Iterate over the list of files
+    for file in files:
+        # Read the CSV file into a DataFrame
+        df = pd.read_csv(file)
+        # Append the DataFrame to the list
+        data_frames.append(df)
+    
+    # Concatenate all DataFrames in the list
+    concatenated_df = pd.concat(data_frames, ignore_index=True)
+    return concatenated_df
+
+
 def plot_ratio(signal, background, output_folder, variable):
     hist1, bins1 = np.histogram(signal, bins=30)
     hist2, bins2 = np.histogram(background, bins=30)
@@ -42,8 +58,8 @@ def plot_ratio(signal, background, output_folder, variable):
 
     plt.title(f'signal/background {signal.name}')
 
-    save_path = os.path.join(output_folder, f'charge_separated_{variable}.png')
-    plt.savefig(save_path)
+    save_path = os.path.join(output_folder, f'ratio_{variable}.png')
+    plt.savefig(save_path, bbox_inches='tight')
 
 
 def return_oppostite_chagrge(df, q1, q2):
@@ -58,23 +74,21 @@ def return_same_charge(df, q1, q2):
 
 def main():
     # Read the CSV file into a pandas DataFrame
-    file_path1 = '/ceph/ehettwer/working_data/inclusive_charge/WminusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv'
-    file_path2 = '/ceph/ehettwer/working_data/inclusive_charge/WZTo3LNu_mllmin0p1_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv'
+    signal_path = ['/ceph/ehettwer/working_data/inclusive_charge/WminusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
+                   '/ceph/ehettwer/working_data/inclusive_charge/WplusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv']
+    background_path = ['/ceph/ehettwer/working_data/inclusive_charge/WZTo3LNu_mllmin0p1_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv']
 
-    df1 = pd.read_csv(file_path1)
-    df2 = pd.read_csv(file_path2)
+    df1 = concatenate_csv(signal_path)
+    df2 = concatenate_csv(background_path)
 
-    charge_filtered_df1 = return_oppostite_chagrge(df1, 'q_1', 'q_3')
-    charge_filtered_df2 = return_oppostite_chagrge(df2, 'q_1', 'q_3')
-
-    variables = ['cosThetaStar13', 'cosThetaStar23']
+    variables = ['cosThetaStar13', 'cosThetaStar23', 'cosThetaStar12']
     output_folder = 'WH_analysis/ratio_plots'
     os.makedirs(output_folder, exist_ok=True)
 
 
     for variable in variables:
-        signal = charge_filtered_df1[variable]
-        background = charge_filtered_df2[variable]
+        signal = df1[variable]
+        background = df2[variable]
 
         plot_ratio(signal, background, output_folder, variable)
         print(f'Ratio plot for {variable} saved successfully!')

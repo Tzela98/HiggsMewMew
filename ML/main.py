@@ -40,7 +40,7 @@ def main():
     default_model_path = '/work/ehettwer/HiggsMewMew/ML/projects/'
     default_batch_size = 128
     default_num_epochs = 100
-    default_learning_rate = 0.002
+    default_learning_rate = 0.0015
     default_L2_regularisation = 1e-4
 
     use_defaults = input("Do you want to use default values? (y/n): ").strip().lower() == 'y'
@@ -76,7 +76,7 @@ def main():
     '/ceph/ehettwer/working_data/small_signal_region/WZTo3LNu_mllmin0p1_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
     '/ceph/ehettwer/working_data/small_signal_region/WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18NanoAODv9-106XZZTo2L2Nu_TuneCP5_13TeV_powheg_pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
     '/ceph/ehettwer/working_data/small_signal_region/WplusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
-    '/ceph/ehettwer/working_data/small_signal_region/WminusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
+    '/ceph/ehettwer/working_data/small_signal_region/WminusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv'
     ]
 
     print('Sourcing the training data from the following CSV files:')
@@ -93,10 +93,12 @@ def main():
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
     print('Feature names:', feature_names)
+    numbe_of_features = len(feature_names)
+    print('Number of features:', numbe_of_features)
 
     # Model, loss function, optimizer
     WrappedModel = extend_model(BinaryClassifier)
-    model = WrappedModel()
+    model = WrappedModel(numbe_of_features, 256, 128, 1)
     model.log_model_details(create_path)
     model.to(device)
 
@@ -109,9 +111,11 @@ def main():
     # Training loop
     log_data = []
     tcs_training = []
+    early_stop_counter = 0
+    smallest_loss = 1000
 
-    combinations = [(18,), (19,), (20,)]  # 1st order taylor coefficients
-    combinations += [i for i in itertools.permutations([18, 19, 20], 2)]  # 2nd order Taylor coefficients
+    combinations = [(1,), (2,), (3,), (4,), (5,), (6,), (7,), (8,), (9,), (10,),(11,), (12,), (13,), (14,), (15,), (16,), (17,), (18,), (19,), (20,)]  # 1st order taylor coefficients
+    # combinations += [i for i in itertools.permutations([6, 7, 8], 2)]  # 2nd order Taylor coefficients
 
     for epoch in range(num_epochs):
         print(f"Epoch {epoch+1}/{num_epochs}")
@@ -129,21 +133,22 @@ def main():
             }
         
         tc_dict = model.get_tc(
-        "x",
-        forward_kwargs={"x": test_features.to(device)},
-        tc_idx_list=combinations,
-        reduce_func=reduce)
+            "x",
+            forward_kwargs={"x": test_features.to(device)},
+            tc_idx_list=combinations,
+            reduce_func=reduce
+        )
 
         tcs_training.append(list(tc_dict.values()))
         labels = get_feature_combis(feature_names, combinations)
         labels = [",".join(label) for label in labels]
 
-        plt.figure()
+        plt.figure(figsize=(12, 8))
         plt.plot(tcs_training, label=labels)
         plt.xlabel("Epoch")
         plt.ylabel("Taylor Coefficient Value")
         plt.legend(fontsize='xx-small')
-        plt.savefig(create_path + 'taylor_coefficients.png')
+        plt.savefig(create_path + 'taylor_coefficients.png', bbox_inches="tight")
         plt.close()
 
         log_data.append(epoch_data)
@@ -161,19 +166,35 @@ def main():
             torch.save(model.state_dict(), create_path + f'{model_name}_epoch{epoch + 1}.pth')
 
             # get a set of target taylor coefficients after training
-            model.cpu()
             tc_dict = model.get_tc(
                 "x",
-                forward_kwargs={"x": test_features},
+                forward_kwargs={"x": test_features.to(device)},
                 tc_idx_list=combinations,
-                reduce_func=reduce)
+                reduce_func=reduce
+            )
 
             # plot tcs after training
             plt.title("Taylor Coefficients after Training for given Features")
             plt.plot(labels, list(tc_dict.values()), "+", color="black", markersize=10)
             plt.xlabel("Taylor Coefficient")
+            plt.xticks(rotation=90)
             plt.ylabel("Taylor Coefficient Value")
-            plt.savefig(create_path + 'taylor_coefficients_after_training.png')
+            plt.savefig(create_path + 'taylor_coefficients_after_training.png', bbox_inches="tight")
+            plt.close()
+
+        # Early stopping
+        if valid_loss < smallest_loss:
+            smallest_loss = valid_loss
+            early_stop_counter = 0
+        else:
+            early_stop_counter += 1
+
+        if early_stop_counter >= 20:
+            print('------------------------------------')
+            print("ATTENTION: THE TRAINING HAS BEEN STOPPED EARLY DUE TO NO IMPROVEMENT IN VALIDATION LOSS.")
+            print('please refer to the training log for more details')
+            print('------------------------------------')
+            break
 
 if __name__ == "__main__":
     main()

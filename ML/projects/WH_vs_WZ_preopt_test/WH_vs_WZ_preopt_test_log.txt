@@ -1,0 +1,8 @@
+
+Timestamp: 2024-06-21 17:57:21
+Model Name: WH_vs_WZ_preopt_test
+Batch Size: 190
+Number of Epochs: 120
+Learning Rate: 0.0015
+L2 Regularisation: 0.0001
+----------------------------------------

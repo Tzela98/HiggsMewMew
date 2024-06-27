@@ -1,0 +1,24 @@
+
+Timestamp: 2024-06-20 20:26:37
+Model Name: WH_vs_WZ_no_mH_medium_L2
+Batch Size: 128
+Number of Epochs: 120
+Learning Rate: 0.002
+L2 Regularisation: 0.00025
+----------------------------------------
+
+Timestamp: 2024-06-20 20:29:34
+Model Name: WH_vs_WZ_no_mH_medium_L2
+Batch Size: 128
+Number of Epochs: 120
+Learning Rate: 0.002
+L2 Regularisation: 0.00025
+----------------------------------------
+
+Timestamp: 2024-06-20 21:02:23
+Model Name: WH_vs_WZ_no_mH_medium_L2
+Batch Size: 128
+Number of Epochs: 120
+Learning Rate: 0.005
+L2 Regularisation: 0.00025
+----------------------------------------
