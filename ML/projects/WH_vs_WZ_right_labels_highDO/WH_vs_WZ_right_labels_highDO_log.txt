@@ -1,0 +1,8 @@
+
+Timestamp: 2024-07-03 22:49:37
+Model Name: WH_vs_WZ_right_labels_highDO
+Batch Size: 165
+Number of Epochs: 120
+Learning Rate: 0.0003
+L2 Regularisation: 0.0
+----------------------------------------

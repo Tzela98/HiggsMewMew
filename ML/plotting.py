@@ -47,7 +47,7 @@ class ROCPlotter:
         self.ax.set_title('Receiver Operating Characteristic')
         self.ax.legend(loc="lower right")
 
-        plt.savefig(self.save_path + f'ROC_Curves_{epoch+1}_epochs.png', bbox_inches='tight')
+        plt.savefig(self.save_path + f'ROC_Curves.png')
         plt.close()
 
         self.fig, self.ax = plt.subplots()  # Reset the figure for the next epoch
@@ -66,7 +66,7 @@ class ROCPlotter:
 # log_data: list of dictionaries containing training log data.
 
 def plot_training_log(log_data, epoch, save_path='/work/ehettwer/HiggsMewMew/ML/projects/test/'):
-    fig, ax = plt.subplots(1, 2, figsize=(12, 6))
+    fig, ax = plt.subplots(1, 2, figsize=(14, 8))
     ax[0].plot([entry['epoch'] for entry in log_data], [entry['train_loss'] for entry in log_data], label='Train Loss')
     ax[0].plot([entry['epoch'] for entry in log_data], [entry['val_loss'] for entry in log_data], label='Val Loss')
     ax[0].set_xlabel('Epoch')
@@ -78,7 +78,7 @@ def plot_training_log(log_data, epoch, save_path='/work/ehettwer/HiggsMewMew/ML/
     ax[1].set_ylabel('Accuracy')
     ax[1].legend()
 
-    plt.savefig(save_path + f'training_log_epoch{epoch + 1}.png', bbox_inches="tight")
+    plt.savefig(save_path + f'training_log_epoch.png', bbox_inches="tight")
     plt.close()
 
 
@@ -104,8 +104,8 @@ def plot_histogram(valid_outputs, valid_labels, epoch, save_path='/work/ehettwer
             # If the label is not 0 or 1, raise a ValueError
             raise ValueError("Labels should be either 0 or 1")
     
-    hist_background, bin_edges = np.histogram(valid_outputs_false, bins=30, range=(0, 1))
-    hist_signal, _ = np.histogram(valid_outputs_true, bins=30, range=(0, 1))
+    hist_background, bin_edges = np.histogram(valid_outputs_false, bins=30, range=(0, 1), density=True)
+    hist_signal, _ = np.histogram(valid_outputs_true, bins=30, range=(0, 1), density=True)
 
     hep.histplot([hist_background, hist_signal], bins=bin_edges, stack=False, label=['Background', 'Signal'], ax=ax)
     plt.legend()

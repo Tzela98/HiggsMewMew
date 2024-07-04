@@ -81,7 +81,7 @@ def main():
     df1 = concatenate_csv(signal_path)
     df2 = concatenate_csv(background_path)
 
-    variables = ['cosThetaStar13', 'cosThetaStar23', 'cosThetaStar12']
+    variables = ['m_H', 'pt_H', 'phi_H', 'eta_H']
     output_folder = 'WH_analysis/ratio_plots'
     os.makedirs(output_folder, exist_ok=True)
 

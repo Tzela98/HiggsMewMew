@@ -89,7 +89,7 @@ def main():
     df1 = concatenate_csv(signal_path)
     df2 = concatenate_csv(background_path)
 
-    variables = ['deltaEta_13', 'deltaEta_23', 'deltaEta_WH']
+    variables = ['m_H']
     output_folder = 'Thesis_plots/individual_variables'
     os.makedirs(output_folder, exist_ok=True)
 
@@ -98,7 +98,7 @@ def main():
         signal = df1[variable]
         background = df2[variable]
 
-        plot_ratio(signal, background, output_folder, variable, range=(0, 5))
+        plot_ratio(signal, background, output_folder, variable, range=(115, 135))
         print(f'Ratio plot for {variable} saved successfully!')
 
 

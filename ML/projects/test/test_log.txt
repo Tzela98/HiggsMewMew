@@ -54,3 +54,131 @@ Number of Epochs: 100
 Learning Rate: 0.002
 L2 Regularisation: 0.0001
 ----------------------------------------
+
+Timestamp: 2024-06-27 19:01:15
+Model Name: test
+Batch Size: 128
+Number of Epochs: 100
+Learning Rate: 0.0015
+L2 Regularisation: 0.0001
+----------------------------------------
+
+Timestamp: 2024-06-27 19:04:23
+Model Name: test
+Batch Size: 128
+Number of Epochs: 100
+Learning Rate: 0.0015
+L2 Regularisation: 0.0001
+----------------------------------------
+
+Timestamp: 2024-06-27 19:06:30
+Model Name: test
+Batch Size: 128
+Number of Epochs: 100
+Learning Rate: 0.0015
+L2 Regularisation: 0.0001
+----------------------------------------
+
+Timestamp: 2024-06-27 19:09:26
+Model Name: test
+Batch Size: 128
+Number of Epochs: 100
+Learning Rate: 0.0015
+L2 Regularisation: 0.0001
+----------------------------------------
+
+Timestamp: 2024-06-27 19:29:33
+Model Name: test
+Batch Size: 128
+Number of Epochs: 100
+Learning Rate: 0.0015
+L2 Regularisation: 0.0001
+----------------------------------------
+
+Timestamp: 2024-06-27 19:32:30
+Model Name: test
+Batch Size: 128
+Number of Epochs: 100
+Learning Rate: 0.0015
+L2 Regularisation: 0.0001
+----------------------------------------
+
+Timestamp: 2024-06-27 19:34:47
+Model Name: test
+Batch Size: 128
+Number of Epochs: 100
+Learning Rate: 0.0015
+L2 Regularisation: 0.0001
+----------------------------------------
+
+Timestamp: 2024-06-27 19:41:08
+Model Name: test
+Batch Size: 128
+Number of Epochs: 100
+Learning Rate: 0.0015
+L2 Regularisation: 0.0001
+----------------------------------------
+
+Timestamp: 2024-06-27 19:47:24
+Model Name: test
+Batch Size: 128
+Number of Epochs: 100
+Learning Rate: 0.0015
+L2 Regularisation: 0.0001
+----------------------------------------
+
+Timestamp: 2024-06-27 19:50:50
+Model Name: test
+Batch Size: 128
+Number of Epochs: 100
+Learning Rate: 0.0015
+L2 Regularisation: 0.0001
+----------------------------------------
+
+Timestamp: 2024-06-27 19:51:29
+Model Name: test
+Batch Size: 128
+Number of Epochs: 100
+Learning Rate: 0.0015
+L2 Regularisation: 0.0001
+----------------------------------------
+
+Timestamp: 2024-06-27 19:55:45
+Model Name: test
+Batch Size: 128
+Number of Epochs: 100
+Learning Rate: 0.0015
+L2 Regularisation: 0.0001
+----------------------------------------
+
+Timestamp: 2024-06-27 19:58:14
+Model Name: test
+Batch Size: 128
+Number of Epochs: 100
+Learning Rate: 0.0015
+L2 Regularisation: 0.0001
+----------------------------------------
+
+Timestamp: 2024-06-27 20:01:16
+Model Name: test
+Batch Size: 128
+Number of Epochs: 100
+Learning Rate: 0.0015
+L2 Regularisation: 0.0001
+----------------------------------------
+
+Timestamp: 2024-07-01 23:31:30
+Model Name: test
+Batch Size: 128
+Number of Epochs: 100
+Learning Rate: 0.0015
+L2 Regularisation: 0.0001
+----------------------------------------
+
+Timestamp: 2024-07-03 08:18:14
+Model Name: test
+Batch Size: 128
+Number of Epochs: 100
+Learning Rate: 0.0015
+L2 Regularisation: 0.0001
+----------------------------------------

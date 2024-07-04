@@ -67,8 +67,8 @@ def objective(params):
         else 'cpu'
     )
 
-    training_data = CSVDataset('/work/ehettwer/HiggsMewMew/ML/projects/bayesian_optimisation/WZ_vs_WH_no_mH_train.csv')
-    test_data = CSVDataset('/work/ehettwer/HiggsMewMew/ML/projects/bayesian_optimisation/WZ_vs_WH_no_mH_validate.csv')
+    training_data = CSVDataset('/work/ehettwer/HiggsMewMew/ML/projects/bayesian_optimisation/WH_vs_WZ_right_labels_train.csv')
+    test_data = CSVDataset('/work/ehettwer/HiggsMewMew/ML/projects/bayesian_optimisation/WH_vs_WZ_right_labels_test.csv')
 
     training_loader = DataLoader(training_data, batch_size=batch_size, shuffle=True, drop_last=True)
     test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False, drop_last=True)
@@ -85,7 +85,7 @@ def objective(params):
     # Initialize early stopping variables
     smallest_loss = float('inf')
     early_stop_counter = 0
-    patience = 10
+    patience = 15
 
     num_epochs = 80
 

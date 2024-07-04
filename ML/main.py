@@ -1,17 +1,20 @@
 from tkinter import font
+from sympy import im
 import torch
 import torch.optim as optim
 import torch.nn as nn
 import icecream as ic
 from torch.utils.data import DataLoader, TensorDataset
-from dataclass import NtupleDataclass
-from model import BinaryClassifier
+from dataclass import NtupleDataclass, NtupleDataclassDebugging
+from model import BinaryClassifier, BinaryClassifierCopy
 from training import train_model, evaluate_model
 from plotting import plot_training_log, plot_histogram, plot_feature_importance_autograd, ROCPlotter
 from utils import create_directory, save_log_data, get_input
 from tayloranalysis.model_extension import extend_model 
 import itertools
 import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
 
 
 def reduce(x: torch.Tensor):
@@ -73,10 +76,10 @@ def main():
     #    '/ceph/ehettwer/working_data/full_sim/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv'
 
     csv_paths = [
-    '/ceph/ehettwer/working_data/small_signal_region/WZTo3LNu_mllmin0p1_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
-    '/ceph/ehettwer/working_data/small_signal_region/WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18NanoAODv9-106XZZTo2L2Nu_TuneCP5_13TeV_powheg_pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
-    '/ceph/ehettwer/working_data/small_signal_region/WplusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
-    '/ceph/ehettwer/working_data/small_signal_region/WminusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv'
+    '/work/ehettwer/HiggsMewMew/WZTo3LNu_mllmin0p1_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
+    '/work/ehettwer/HiggsMewMew/WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18NanoAODv9-106XZZTo2L2Nu_TuneCP5_13TeV_powheg_pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
+    '/work/ehettwer/HiggsMewMew/WplusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
+    '/work/ehettwer/HiggsMewMew/WminusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv'
     ]
 
     print('Sourcing the training data from the following CSV files:')
@@ -84,7 +87,7 @@ def main():
         print(path)
 
     # Dataset and DataLoader
-    dataset = NtupleDataclass(csv_paths, project_name=model_name, save_path=create_path, device=device)
+    dataset = NtupleDataclassDebugging(csv_paths, project_name=model_name, save_path=create_path, device=device)
     train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
     
     # Test data
@@ -97,7 +100,7 @@ def main():
     print('Number of features:', numbe_of_features)
 
     # Model, loss function, optimizer
-    WrappedModel = extend_model(BinaryClassifier)
+    WrappedModel = extend_model(BinaryClassifierCopy)
     model = WrappedModel(numbe_of_features, 256, 128, 1)
     model.log_model_details(create_path)
     model.to(device)
@@ -110,12 +113,13 @@ def main():
 
     # Training loop
     log_data = []
+
     tcs_training = []
     early_stop_counter = 0
     smallest_loss = 1000
 
-    combinations = [(1,), (2,), (3,), (4,), (5,), (6,), (7,), (8,), (9,), (10,),(11,), (12,), (13,), (14,), (15,), (16,), (17,), (18,), (19,), (20,)]  # 1st order taylor coefficients
-    # combinations += [i for i in itertools.permutations([6, 7, 8], 2)]  # 2nd order Taylor coefficients
+    combinations = [(0,), (1,), (2,), (3,), (4,), (5,), (6,), (7,), (8,), (9,), (10,),(11,), (12,), (13,), (14,), (15,), (16,), (17,), (18,), (19,), (20,), (21,)]  # 1st order taylor coefficients
+    # combinations += [i for i in itertools.permutations([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], 2)]  # 2nd order Taylor coefficients
 
     for epoch in range(num_epochs):
         print(f"Epoch {epoch+1}/{num_epochs}")
@@ -173,9 +177,16 @@ def main():
                 reduce_func=reduce
             )
 
+            tc_dict_list = list(tc_dict.values())
+            tc_dict_first_order = tc_dict_list[:len(feature_names)]
+            labels_first_order = labels[:len(feature_names)]
+
+
             # plot tcs after training
+            plt.figure(figsize=(12, 8))
             plt.title("Taylor Coefficients after Training for given Features")
-            plt.plot(labels, list(tc_dict.values()), "+", color="black", markersize=10)
+            plt.plot(labels_first_order, tc_dict_first_order, "+", color="black", markersize=10)
+            plt.axhline(0, color='red', linestyle=':', linewidth=1)
             plt.xlabel("Taylor Coefficient")
             plt.xticks(rotation=90)
             plt.ylabel("Taylor Coefficient Value")
