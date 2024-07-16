@@ -76,10 +76,10 @@ def main():
     #    '/ceph/ehettwer/working_data/full_sim/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv'
 
     csv_paths = [
-    '/work/ehettwer/HiggsMewMew/WZTo3LNu_mllmin0p1_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
-    '/work/ehettwer/HiggsMewMew/WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18NanoAODv9-106XZZTo2L2Nu_TuneCP5_13TeV_powheg_pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
-    '/work/ehettwer/HiggsMewMew/WplusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
-    '/work/ehettwer/HiggsMewMew/WminusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv'
+    '/work/ehettwer/HiggsMewMew/WZTo3LNu_mllmin0p1_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X_filtered.csv',
+    '/work/ehettwer/HiggsMewMew/WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18NanoAODv9-106XZZTo2L2Nu_TuneCP5_13TeV_powheg_pythia8_RunIISummer20UL18NanoAODv9-106X_filtered.csv',
+    '/work/ehettwer/HiggsMewMew/WplusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X_filtered.csv',
+    '/work/ehettwer/HiggsMewMew/WminusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X_filtered.csv'
     ]
 
     print('Sourcing the training data from the following CSV files:')

@@ -1,8 +1,0 @@
-
-Timestamp: 2024-06-04 00:26:25
-Model Name: WH_vs_Background_no_mH_DO02
-Batch Size: 128
-Number of Epochs: 100
-Learning Rate: 0.002
-L2 Regularisation: 0.0001
-----------------------------------------

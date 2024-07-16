@@ -1,8 +1,0 @@
-
-Timestamp: 2024-07-02 22:10:09
-Model Name: WH_vs_WZ_optimised_parameters_inclusive_mH_drop_nmuons
-Batch Size: 160
-Number of Epochs: 120
-Learning Rate: 0.00075
-L2 Regularisation: 0.00025
-----------------------------------------

@@ -1,8 +1,0 @@
-
-Timestamp: 2024-06-26 17:30:48
-Model Name: WH_vs_WZ_optimised_parameters_mediumL2
-Batch Size: 160
-Number of Epochs: 120
-Learning Rate: 0.00075
-L2 Regularisation: 0.00025
-----------------------------------------

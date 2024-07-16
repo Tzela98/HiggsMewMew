@@ -1,8 +1,0 @@
-
-Timestamp: 2024-06-06 05:31:23
-Model Name: default_model_test_h2
-Batch Size: 256
-Number of Epochs: 120
-Learning Rate: 0.001
-L2 Regularisation: 0.0001
-----------------------------------------

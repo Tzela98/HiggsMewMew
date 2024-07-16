@@ -1,0 +1,8 @@
+
+Timestamp: 2024-06-25 17:07:52
+Model Name: optimised_parameters_lowL2
+Batch Size: 189
+Number of Epochs: 120
+Learning Rate: 0.0015
+L2 Regularisation: 0.0001
+----------------------------------------

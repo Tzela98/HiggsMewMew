@@ -1,0 +1,8 @@
+
+Timestamp: 2024-07-10 00:20:47
+Model Name: WH_vs_WZ_right_labels_mediumL2_limit_nmuons
+Batch Size: 64
+Number of Epochs: 120
+Learning Rate: 0.00014
+L2 Regularisation: 0.00025
+----------------------------------------

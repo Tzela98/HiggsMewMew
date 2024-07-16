@@ -1,0 +1,8 @@
+
+Timestamp: 2024-07-12 19:41:53
+Model Name: WH_vs_WZ_right_labels_limit_nmuons_optimal_parameters_DO05
+Batch Size: 171
+Number of Epochs: 120
+Learning Rate: 0.0004
+L2 Regularisation: 1e-05
+----------------------------------------

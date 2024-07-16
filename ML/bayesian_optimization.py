@@ -57,7 +57,7 @@ class CSVDataset(Dataset):
 
 def objective(params):
     # Unpack the parameters
-    learning_rate, batch_size = params
+    learning_rate, batch_size, L2_regularisation = params
     batch_size = int(batch_size)
     
     # Set a device to run the model on
@@ -67,8 +67,8 @@ def objective(params):
         else 'cpu'
     )
 
-    training_data = CSVDataset('/work/ehettwer/HiggsMewMew/ML/projects/bayesian_optimisation/WH_vs_WZ_right_labels_train.csv')
-    test_data = CSVDataset('/work/ehettwer/HiggsMewMew/ML/projects/bayesian_optimisation/WH_vs_WZ_right_labels_test.csv')
+    training_data = CSVDataset('/work/ehettwer/HiggsMewMew/ML/projects/bayesian_optimisation/WH_vs_WZ_right_labels_limit_nmuons_train.csv')
+    test_data = CSVDataset('/work/ehettwer/HiggsMewMew/ML/projects/bayesian_optimisation/WH_vs_WZ_right_labels_limit_nmuons_test.csv')
 
     training_loader = DataLoader(training_data, batch_size=batch_size, shuffle=True, drop_last=True)
     test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False, drop_last=True)
@@ -79,7 +79,7 @@ def objective(params):
     # Model, loss function, optimizer
     model = BinaryClassifier(num_features, 256, 128, 1).to(device)
     criterion = nn.BCEWithLogitsLoss(pos_weight=training_data.pos_weight)
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=0.00025)
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=L2_regularisation)
 
     # Training loop
     # Initialize early stopping variables
@@ -87,11 +87,11 @@ def objective(params):
     early_stop_counter = 0
     patience = 15
 
-    num_epochs = 80
+    num_epochs = 100
 
     print('------------------------------------')
     print('ATTENTION: TRAINING HAS STARTED.')
-    print(f"Training with learning rate: {learning_rate}, batch size: {batch_size}")
+    print(f"Training with learning rate: {learning_rate}, batch size: {batch_size}", f"L2 regularisation: {L2_regularisation}")
     print('------------------------------------')
 
     for epoch in range(num_epochs):
@@ -136,11 +136,12 @@ def main():
     )
 
     # Define the search space for Bayesian optimization
-    space = [Real(1e-4, 1e-2, name='learning_rate'),
-             Integer(64, 256, name='batch_size')]
+    space = [Real(0.0001, 0.001, name='learning_rate'),
+             Integer(64, 256, name='batch_size'),
+             Real(0.00001, 0.001, name='L2_regularisation')]
     
     # Perform Bayesian optimization
-    res = gp_minimize(objective, space, n_calls=40, random_state=42)
+    res = gp_minimize(objective, space, n_calls=50, random_state=42, verbose=True)
     print(res)
 
     # Get the optimal hyperparameters

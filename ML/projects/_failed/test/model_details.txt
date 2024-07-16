@@ -1,0 +1,19 @@
+Timestamp: 2024-07-03 08:18:18
+Model Architecture:
+
+Input size: 22
+Layer 1: Linear(22, 256)
+BatchNorm1d(256)
+Layer 2: Linear(256, 128)
+BatchNorm1d(128)
+Output layer: Linear(128, 1)
+
+Parameters and Shapes:
+
+Flatten: Output shape depends on input shape
+Layer 1: [256, 22]
+Layer 2: [128, 256]
+Output layer: [1, 128]
+
+Total number of parameters:
+39681
