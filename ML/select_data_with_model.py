@@ -149,13 +149,50 @@ def plot_and_save_intervals_signal_vs_background(interval_dataframes, output_dir
             plt.close()
 
 
+def plot_and_save_intervals_signal_vs_background_stacked(interval_dataframes, output_dir, label_column='is_wh'):
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    
+    for interval, df in interval_dataframes.items():
+        print('plotting interval', interval)
+        interval_str = f"{interval[0]}_{interval[1]}"
+        
+        for column in df.columns:
+            if column == label_column:
+                continue
+            
+            plt.figure(figsize=(12, 8))
+            
+            # Plot true signal and background distributions
+            plt.hist(
+                [df[df[label_column] == 1][column], df[df[label_column] == 0][column]], 
+                bins=30, 
+                histtype='step', 
+                label=['Signal', 'Background'],
+                density=True, 
+                alpha=1, 
+                stacked=True
+            )
+            
+            plt.title(f'{column} distribution in interval {interval_str}')
+            plt.xlabel(column)
+            plt.ylabel('Frequency')
+            plt.legend()
+            
+            plot_filename = f"{column}_interval_{interval_str}.png"
+            plot_filepath = os.path.join(output_dir, plot_filename)
+            plt.savefig(plot_filepath)
+            plt.close()
 
 
 
 
-model_state_dict = '/work/ehettwer/HiggsMewMew/ML/projects/WH_vs_WZ_right_labels_limit_nmuons_optimal_parameters_DO05/WH_vs_WZ_right_labels_limit_nmuons_optimal_parameters_DO05_epoch90.pth'
-validation_data_path = '/work/ehettwer/HiggsMewMew/ML/projects/WH_vs_WZ_right_labels_limit_nmuons_optimal_parameters_DO05/WH_vs_WZ_right_labels_limit_nmuons_optimal_parameters_DO05_test.csv'
-intervals = [(0.0, 0.5), (0.5, 0.7), (0.7, 0.8), (0.8, 0.9), (0.9, 1.0)]
+
+
+
+model_state_dict = '/work/ehettwer/HiggsMewMew/ML/projects/WH_vs_WZ_corrected_optimal_DO05/WH_vs_WZ_corrected_optimal_DO05_epoch100.pth'
+validation_data_path = '/work/ehettwer/HiggsMewMew/ML/projects/WH_vs_WZ_corrected_optimal_DO05/WH_vs_WZ_corrected_optimal_DO05_test.csv'
+intervals = [(0.0, 0.5), (0.5, 0.7), (0.7, 0.9), (0.9, 1.0)]
 
 model_class = BinaryClassifier
 
@@ -167,10 +204,13 @@ for interval, dataset in interval_datasets.items():
     print(f'Interval {interval}: {len(dataset)} samples')
     print(dataset.head())
 
-plot_directory_individual = '/work/ehettwer/HiggsMewMew/ML/projects/WH_vs_WZ_right_labels_limit_nmuons_optimal_parameters_DO05/interval_plots_individual'
-plot_directory_one_plot = '/work/ehettwer/HiggsMewMew/ML/projects/WH_vs_WZ_right_labels_limit_nmuons_optimal_parameters_DO05/interval_plots_one_plot'
-plot_directory_sb = '/work/ehettwer/HiggsMewMew/ML/projects/WH_vs_WZ_right_labels_limit_nmuons_optimal_parameters_DO05/interval_plots_sb'
+plot_directory_individual = '/work/ehettwer/HiggsMewMew/ML/projects/WH_vs_WZ_corrected_optimal_DO05/interval_plots_individual'
+plot_directory_one_plot = '/work/ehettwer/HiggsMewMew/ML/projects/WH_vs_WZ_corrected_optimal_DO05/interval_plots_one_plot'
+plot_directory_sb = '/work/ehettwer/HiggsMewMew/ML/projects/WH_vs_WZ_corrected_optimal_DO05/interval_plots_sb'
+plot_directory_sb_stacked = '/work/ehettwer/HiggsMewMew/ML/projects/WH_vs_WZ_corrected_optimal_DO05/interval_plots_sb_stacked'
 
-plot_and_save_intervals_individual(interval_datasets, plot_directory_individual)
-plot_and_save_intervals_one_plot(interval_datasets, plot_directory_one_plot)
-plot_and_save_intervals_signal_vs_background(interval_datasets, plot_directory_sb)
+
+#plot_and_save_intervals_individual(interval_datasets, plot_directory_individual)
+#plot_and_save_intervals_one_plot(interval_datasets, plot_directory_one_plot)
+#plot_and_save_intervals_signal_vs_background(interval_datasets, plot_directory_sb)
+plot_and_save_intervals_signal_vs_background_stacked(interval_datasets, plot_directory_sb_stacked)

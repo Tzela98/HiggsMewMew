@@ -1,0 +1,8 @@
+
+Timestamp: 2024-07-16 21:59:16
+Model Name: WH_vs_WZ_corrected_noDO
+Batch Size: 64
+Number of Epochs: 120
+Learning Rate: 0.0001
+L2 Regularisation: 0.0005
+----------------------------------------

@@ -67,8 +67,8 @@ def objective(params):
         else 'cpu'
     )
 
-    training_data = CSVDataset('/work/ehettwer/HiggsMewMew/ML/projects/bayesian_optimisation/WH_vs_WZ_right_labels_limit_nmuons_train.csv')
-    test_data = CSVDataset('/work/ehettwer/HiggsMewMew/ML/projects/bayesian_optimisation/WH_vs_WZ_right_labels_limit_nmuons_test.csv')
+    training_data = CSVDataset('/work/ehettwer/HiggsMewMew/ML/projects/bayesian_optimisation/WH_vs_WZ_corrected_DO05_train.csv')
+    test_data = CSVDataset('/work/ehettwer/HiggsMewMew/ML/projects/bayesian_optimisation/WH_vs_WZ_corrected_DO05_test.csv')
 
     training_loader = DataLoader(training_data, batch_size=batch_size, shuffle=True, drop_last=True)
     test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False, drop_last=True)
@@ -85,9 +85,9 @@ def objective(params):
     # Initialize early stopping variables
     smallest_loss = float('inf')
     early_stop_counter = 0
-    patience = 15
+    patience = 10
 
-    num_epochs = 100
+    num_epochs = 80
 
     print('------------------------------------')
     print('ATTENTION: TRAINING HAS STARTED.')
@@ -139,9 +139,11 @@ def main():
     space = [Real(0.0001, 0.001, name='learning_rate'),
              Integer(64, 256, name='batch_size'),
              Real(0.00001, 0.001, name='L2_regularisation')]
+
+    x0 = [0.004, 170, 0.00001]
     
     # Perform Bayesian optimization
-    res = gp_minimize(objective, space, n_calls=50, random_state=42, verbose=True)
+    res = gp_minimize(objective, space, n_calls=20, random_state=42, verbose=True)
     print(res)
 
     # Get the optimal hyperparameters

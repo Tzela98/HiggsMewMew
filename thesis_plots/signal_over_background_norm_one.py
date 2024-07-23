@@ -30,25 +30,26 @@ def concatenate_csv(files):
 
 
 def plot_ratio(signal, background, output_folder, variable, range):
+    # Calculate histograms
     hist1, bins1 = np.histogram(signal, bins=30, range=range)
     hist2, bins2 = np.histogram(background, bins=30, range=range)
 
     hist1_err = np.sqrt(hist1)
     hist2_err = np.sqrt(hist2)
 
-    # Normalize histograms
+    # Normalize histograms for plotting
     hist1_sum = np.sum(hist1)
     hist2_sum = np.sum(hist2)
 
-    hist1 = hist1 / hist1_sum
-    hist2 = hist2 / hist2_sum
+    hist1_norm = hist1 / hist1_sum
+    hist2_norm = hist2 / hist2_sum
 
-    hist1_err = hist1_err / hist1_sum
-    hist2_err = hist2_err / hist2_sum
+    hist1_norm_err = hist1_err / hist1_sum
+    hist2_norm_err = hist2_err / hist2_sum
 
     # Calculate ratio and its error
-    ratio = hist1 / hist2
-    ratio_err = ratio * np.sqrt((hist1_err / hist1) ** 2 + (hist2_err / hist2) ** 2)
+    ratio = hist1_norm / hist2_norm
+    ratio_err = ratio * np.sqrt((hist1_norm_err / hist1_norm) ** 2 + (hist2_norm_err / hist2_norm) ** 2)
 
     # Create subplots
     fig = plt.figure(figsize=(8, 8))
@@ -56,8 +57,8 @@ def plot_ratio(signal, background, output_folder, variable, range):
 
     # Histogram subplot
     ax0 = fig.add_subplot(gs[0])
-    hep.histplot(hist1, bins1, label='Signal', histtype='step', ax=ax0)
-    hep.histplot(hist2, bins2, label='Background', histtype='step', ax=ax0)
+    hep.histplot(hist1_norm, bins1, label='Signal', histtype='step', ax=ax0)
+    hep.histplot(hist2_norm, bins2, label='Background', histtype='step', ax=ax0)
 
     ax0.set_ylabel('Normalized Counts')
     ax0.legend()
@@ -78,13 +79,30 @@ def plot_ratio(signal, background, output_folder, variable, range):
     plt.savefig(save_path, bbox_inches='tight')
     plt.close()
 
+    # Return the histograms and bins for ROC calculation
+    return hist1_norm, hist2_norm, bins1
+
+
+def calculate_roc(signal, background, bins, selection_criteria):
+    # Calculate TP, FP, FN, TN
+    TP = np.sum(signal[(bins[:-1] >= selection_criteria[0]) & (bins[:-1] <= selection_criteria[1])])
+    FP = np.sum(background[(bins[:-1] >= selection_criteria[0]) & (bins[:-1] <= selection_criteria[1])])
+    FN = np.sum(signal) - TP
+    TN = np.sum(background) - FP
+
+    # Calculate TPR and FPR
+    TPR = TP / (TP + FN)
+    FPR = FP / (FP + TN)
+
+    return TPR, FPR
+
 
 def main():
     # Read the CSV file into a pandas DataFrame
-    signal_path = ['/ceph/ehettwer/working_data/inclusive_charge/WminusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
-                   '/ceph/ehettwer/working_data/inclusive_charge/WplusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv']
-    background_path = ['/ceph/ehettwer/working_data/inclusive_charge/WZTo3LNu_mllmin0p1_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
-                       '/ceph/ehettwer/working_data/inclusive_charge/WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18NanoAODv9-106XZZTo2L2Nu_TuneCP5_13TeV_powheg_pythia8_RunIISummer20UL18NanoAODv9-106X.csv']
+    signal_path = ['/work/ehettwer/HiggsMewMew/data/bug_fix/WminusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
+                   '/work/ehettwer/HiggsMewMew/data/bug_fix/WplusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv']
+    background_path = ['/work/ehettwer/HiggsMewMew/data/bug_fix/WZTo3LNu_mllmin0p1_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
+                       '/work/ehettwer/HiggsMewMew/data/bug_fix/WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18NanoAODv9-106X.csv']
 
     df1 = concatenate_csv(signal_path)
     df2 = concatenate_csv(background_path)
@@ -98,7 +116,9 @@ def main():
         signal = df1[variable]
         background = df2[variable]
 
-        plot_ratio(signal, background, output_folder, variable, range=(115, 135))
+        signal_hist, background_hist, bins = plot_ratio(signal, background, output_folder, variable, range=(115, 135))
+        TPR, FPR = calculate_roc(signal_hist, background_hist, bins, selection_criteria=(122, 128))
+        print(f'TPR: {TPR:.4f}, FPR: {FPR:.4f}')
         print(f'Ratio plot for {variable} saved successfully!')
 
 

@@ -1,0 +1,48 @@
+
+Timestamp: 2024-07-17 00:59:50
+Model Name: WH_vs_WZ_corrected_optimal_DO05
+Batch Size: 72
+Number of Epochs: 120
+Learning Rate: 0.0005
+L2 Regularisation: 1e-05
+----------------------------------------
+
+Timestamp: 2024-07-17 01:16:00
+Model Name: WH_vs_WZ_corrected_optimal_DO05
+Batch Size: 72
+Number of Epochs: 120
+Learning Rate: 0.0006
+L2 Regularisation: 1e-05
+----------------------------------------
+
+Timestamp: 2024-07-17 01:40:52
+Model Name: WH_vs_WZ_corrected_optimal_DO05
+Batch Size: 72
+Number of Epochs: 120
+Learning Rate: 0.0006
+L2 Regularisation: 1e-05
+----------------------------------------
+
+Timestamp: 2024-07-17 01:57:37
+Model Name: WH_vs_WZ_corrected_optimal_DO05
+Batch Size: 72
+Number of Epochs: 120
+Learning Rate: 0.0006
+L2 Regularisation: 1e-05
+----------------------------------------
+
+Timestamp: 2024-07-17 01:59:36
+Model Name: WH_vs_WZ_corrected_optimal_DO05
+Batch Size: 72
+Number of Epochs: 120
+Learning Rate: 0.0006
+L2 Regularisation: 1e-05
+----------------------------------------
+
+Timestamp: 2024-07-17 02:07:38
+Model Name: WH_vs_WZ_corrected_optimal_DO05
+Batch Size: 72
+Number of Epochs: 120
+Learning Rate: 0.0006
+L2 Regularisation: 1e-05
+----------------------------------------

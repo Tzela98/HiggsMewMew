@@ -3,9 +3,10 @@ import matplotlib.pyplot as plt
 from sympy import plot
 import torch
 from torch.utils.data import DataLoader, TensorDataset
-import pandas as pd
 import os
 from model import BinaryClassifier
+import pandas as pd
+
 
 class ModelEvaluator:
     def __init__(self, model_class, model_path, device='cpu'):
@@ -204,10 +205,6 @@ class ModelEvaluator:
                 plt.savefig(plot_filepath)
                 plt.close()
 
-
-import pandas as pd
-import os
-import matplotlib.pyplot as plt
 
 class simple_mass_cut:
     def __init__(self, file_path):

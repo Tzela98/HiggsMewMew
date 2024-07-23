@@ -5,6 +5,7 @@ import uproot
 import pandas as pd
 import numpy as np
 from icecream import ic
+from tqdm import tqdm
 import filters as filters
 
 
@@ -15,9 +16,8 @@ def open_to_dataframe(dataset):
         dataframe = tree.arrays(['deltaEta_13', 'deltaEta_23', 'deltaEta_WH', 'deltaPhi_12', 'deltaPhi_13', 'deltaPhi_WH',
                                  'deltaR_12', 'deltaR_13', 'deltaR_23', 'eta_H', 'm_H', 'phi_H', 'pt_H', 'q_1', 'q_2', 'q_3',
                                  'pt_1', 'pt_2', 'pt_3', 'nmuons', 'eta_1', 'eta_2', 'cosThetaStar12', 'cosThetaStar13', 'cosThetaStar23',
-                                 'trg_sf', 'id_wgt_mu_1', 'id_wgt_mu_2', 'iso_wgt_mu_1', 'iso_wgt_mu_2', 
+                                 'trg_sf', 'id_wgt_mu_1', 'id_wgt_mu_2', 'iso_wgt_mu_1', 'iso_wgt_mu_2', 'genWeight',
                                  'is_wh'], library="pd")
-        print(f"Read {dataset}")
         return dataframe
     except KeyError as e:
         print(f"KeyError: {e} occurred while reading {dataset}. Skipping this file.")
@@ -26,8 +26,10 @@ def open_to_dataframe(dataset):
 
 def combined_dataframes(data: list):
     all_events = pd.DataFrame()
-    for dataset in data:
-        all_events = pd.concat([all_events, open_to_dataframe(dataset)])
+    for dataset in tqdm(data, desc="Combining DataFrames"):
+        df = open_to_dataframe(dataset)
+        if df is not None:
+            all_events = pd.concat([all_events, df])
     return all_events
 
 
@@ -41,6 +43,12 @@ def open_multiple_paths(paths: list):
 def df_segmentation(df, variable, threshold: tuple):
     df_segmented = (df[(df[variable] > threshold[0]) & (df[variable] < threshold[1])])
     return df_segmented
+
+
+def filter_muons_from_csv(file_path):
+    df = pd.read_csv(file_path)
+    filtered_df = df[df['nmuons'] <= 3]
+    return filtered_df
 
 
 DYJetsToLL_M_50_path = open_multiple_paths(['/ceph/ehettwer/ntuples/full_training_samples/CROWNRun/2018/DYJetsToLL_M-50*/*/*.root'])
@@ -73,7 +81,7 @@ dataset_nicks = ['DYJetsToLL_M-100to200_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunII
                     'TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X',
                     'WWTo2L2Nu_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X',
                     'WZTo3LNu_mllmin0p1_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X',
-                    'WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18NanoAODv9-106X'
+                    'WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18NanoAODv9-106X',
                     'ZZTo2L2Nu_TuneCP5_13TeV_powheg_pythia8_RunIISummer20UL18NanoAODv9-106X',
                     'ZZTo4L_TuneCP5_13TeV_powheg_pythia8_RunIISummer20UL18NanoAODv9-106X',
                     'WminusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X',
@@ -97,7 +105,7 @@ for dataset_nick, data_path in zip(dataset_nicks, data_paths):
     print('length of df_combined:', len(df_combined))
     df_signal_region = df_segmentation(df_combined, 'm_H', (115, 135))
     print('number of working events: ', len(df_signal_region))
-    df_signal_region.to_csv(f'/ceph/ehettwer/working_data/inclusive_charge/{dataset_nick}.csv')
+    df_signal_region.to_csv(f'/work/ehettwer/HiggsMewMew/data/including_genWeight/{dataset_nick}.csv')
     print(f"Saved {dataset_nick}.csv")
 
 
