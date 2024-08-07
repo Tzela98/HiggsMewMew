@@ -1,0 +1,8 @@
+
+Timestamp: 2024-08-07 23:11:57
+Model Name: test
+Batch Size: 64
+Number of Epochs: 10
+Learning Rate: 0.0005
+L2 Regularisation: 1e-05
+----------------------------------------

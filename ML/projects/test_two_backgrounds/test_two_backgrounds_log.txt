@@ -1,0 +1,8 @@
+
+Timestamp: 2024-08-06 23:54:53
+Model Name: test_two_backgrounds
+Batch Size: 72
+Number of Epochs: 120
+Learning Rate: 0.0006
+L2 Regularisation: 1e-05
+----------------------------------------

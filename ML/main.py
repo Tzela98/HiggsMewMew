@@ -5,7 +5,7 @@ import torch.optim as optim
 import torch.nn as nn
 import icecream as ic
 from torch.utils.data import DataLoader, TensorDataset
-from dataclass import NtupleDataclass, NtupleDataclassDebugging
+from dataclass import NtupleDataclass, NtupleDataclass_Dev
 from model import BinaryClassifier, BinaryClassifierCopy
 from training import train_model, evaluate_model
 from plotting import plot_training_log, plot_histogram, plot_feature_importance_autograd, ROCPlotter
@@ -76,18 +76,20 @@ def main():
     #    '/ceph/ehettwer/working_data/full_sim/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv'
 
     csv_paths = [
-    '/work/ehettwer/HiggsMewMew/data/bug_fix/WZTo3LNu_mllmin0p1_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
-    '/work/ehettwer/HiggsMewMew/data/bug_fix/WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
-    '/work/ehettwer/HiggsMewMew/data/bug_fix/WplusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
-    '/work/ehettwer/HiggsMewMew/data/bug_fix/WminusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv'
+    '/work/ehettwer/HiggsMewMew/WZTo3LNu_mllmin0p1_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X_icluding_weights.csv',
+    '/work/ehettwer/HiggsMewMew/WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18NanoAODv9-106X_icluding_weights.csv',
+    '/work/ehettwer/HiggsMewMew/WplusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X_icluding_weights.csv',
+    '/work/ehettwer/HiggsMewMew/WminusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X_icluding_weights.csv'
     ]
+
+    # '/work/ehettwer/HiggsMewMew/ZZTo4L_TuneCP5_13TeV_powheg_pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
 
     print('Sourcing the training data from the following CSV files:')
     for path in csv_paths:
         print(path)
 
     # Dataset and DataLoader
-    dataset = NtupleDataclass(csv_paths, project_name=model_name, save_path=create_path, device=device)
+    dataset = NtupleDataclass_Dev(csv_paths, project_name=model_name, save_path=create_path, device=device)
     train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
     
     # Test data
@@ -158,12 +160,12 @@ def main():
         log_data.append(epoch_data)
 
         # Save model checkpoint every 10 epochs
-        if (epoch + 1) % 10 == 0:
+        if (epoch + 1) % 2 == 0:
             plot_histogram(valid_output, valid_labels, epoch, save_path=create_path)
             plot_training_log(log_data, epoch, save_path=create_path)
             plot_feature_importance_autograd(model, feature_names, test_features, device, epoch, save_path=create_path)
 
-            roc_plotter.calculate_ROC(valid_output, valid_labels)
+            roc_plotter.calculate_ROC(valid_output, valid_labels, epoch)
             roc_plotter.plot_roc_curve(epoch)
             roc_plotter.plot_auc()
 

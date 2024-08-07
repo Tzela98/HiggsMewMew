@@ -16,8 +16,9 @@ class ROCPlotter:
         self.fpr_list = []
         self.tpr_list = []
         self.auc_list = []
+        self.epoch_list = []
 
-    def calculate_ROC(self, valid_outputs, valid_labels):
+    def calculate_ROC(self, valid_outputs, valid_labels, epoch):
         # Calculate the false positive rate, true positive rate, and threshold values
         fpr, tpr, thresholds = roc_curve(valid_labels, valid_outputs)
         self.fpr_list.append(fpr)
@@ -26,6 +27,7 @@ class ROCPlotter:
         # Calculate the Area Under the Curve (AUC)
         roc_auc = auc(fpr, tpr)
         self.auc_list.append(roc_auc)
+        self.epoch_list.append(epoch + 1)
 
     def plot_roc_curve(self, epoch):
         # Clear the current axes to avoid overlapping plots
@@ -36,7 +38,7 @@ class ROCPlotter:
         for i in range(len(self.fpr_list)):
             # Plot the ROC curve with color gradients
             self.ax.plot(self.fpr_list[i], self.tpr_list[i], color=colors[i], lw=2, 
-                         label=f'Epoch {epoch+1} (area = {self.auc_list[i]:.4f})')
+                        label=f'Epoch {self.epoch_list[i]} (area = {self.auc_list[i]:.4f})')
 
         # Plot the diagonal line
         self.ax.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
@@ -47,14 +49,14 @@ class ROCPlotter:
         self.ax.set_title('Receiver Operating Characteristic')
         self.ax.legend(loc="lower right")
 
-        plt.savefig(self.save_path + f'ROC_Curves.png')
+        plt.savefig(self.save_path + 'ROC_Curves.png')
         plt.close()
 
         self.fig, self.ax = plt.subplots()  # Reset the figure for the next epoch
 
     def plot_auc(self):
         plt.figure()
-        plt.plot(range(1, len(self.auc_list) + 1), self.auc_list, marker='o')
+        plt.plot(range(1, max(self.epoch_list) + 1), self.auc_list, marker='o')
         plt.xlabel('Epoch')
         plt.ylabel('AUC')
         plt.title('AUC vs Epoch')

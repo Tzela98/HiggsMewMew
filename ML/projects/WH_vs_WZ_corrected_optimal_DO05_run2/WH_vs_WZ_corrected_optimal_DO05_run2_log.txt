@@ -1,0 +1,24 @@
+
+Timestamp: 2024-08-05 02:33:49
+Model Name: WH_vs_WZ_corrected_optimal_DO05_run2
+Batch Size: 72
+Number of Epochs: 120
+Learning Rate: 0.0006
+L2 Regularisation: 1e-05
+----------------------------------------
+
+Timestamp: 2024-08-05 02:36:18
+Model Name: WH_vs_WZ_corrected_optimal_DO05_run2
+Batch Size: 72
+Number of Epochs: 120
+Learning Rate: 0.0006
+L2 Regularisation: 1e-05
+----------------------------------------
+
+Timestamp: 2024-08-05 03:17:18
+Model Name: WH_vs_WZ_corrected_optimal_DO05_run2
+Batch Size: 72
+Number of Epochs: 120
+Learning Rate: 0.0006
+L2 Regularisation: 1e-05
+----------------------------------------

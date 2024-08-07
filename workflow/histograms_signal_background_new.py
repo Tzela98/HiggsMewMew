@@ -1,13 +1,8 @@
-import signal
-from turtle import back
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import mplhep as hep
 import glob
-from icecream import ic
-
-
 
 hep.style.use(hep.style.CMS)
 hep.cms.label(loc=0)
@@ -83,12 +78,15 @@ def open_multiple_paths(paths: list):
     return sorted(all_paths)
 
 
-def calculate_weights(dataset, cross_section, generator_weight, number_of_events, lumi = 59.74 * 1000):
+def calculate_weights(dataset, cross_section, generator_weight, number_of_events, lumi=59.74 * 1000):
     id_iso_wgt = dataset['id_wgt_mu_1'] * dataset['iso_wgt_mu_1'] * dataset['id_wgt_mu_2'] * dataset['iso_wgt_mu_2']
-    acceptance = dataset['genWeight']/(abs(dataset['genWeight']) * generator_weight * number_of_events)
+    acceptance = dataset['genWeight'] / (abs(dataset['genWeight']) * generator_weight * number_of_events)
     weight = id_iso_wgt * acceptance * lumi * cross_section
-    dataset['weights'] = weight
-
+    
+    # Insert the new column 'weights' before the last column
+    last_col_idx = len(dataset.columns) - 1
+    dataset.insert(last_col_idx, 'weights', weight)
+    
     return dataset
 
 
@@ -101,7 +99,7 @@ def histogram_dataset(dataset, variable, weights, plotname):
     plt.ylabel('Events')
     plt.legend()
 
-    plt.savefig('workflow/plots/' + plotname + '.png', bbox_inches='tight')
+    plt.savefig(plotname + '.png', bbox_inches='tight')
     plt.close()
 
     print(f"Saved plot to workflow/plots/{plotname}.png")
@@ -110,20 +108,26 @@ def histogram_dataset(dataset, variable, weights, plotname):
 
 def histogram_signal_background(data, signal, background, variable, weights, plotname):
     plt.figure(figsize=(10, 8))
-    n, bins, patches = plt.hist(signal[variable], bins=4, range=(115, 135), weights=signal[weights]*50, histtype='step', label='signal x 50')
     n, bins, patches = plt.hist(background[variable], bins=4, range=(115, 135), weights=background[weights], histtype='step', label='background')
-    #n, bins, patches = plt.hist(data[variable], bins=4, range=(115, 135), histtype='step', label='data')
+    np.savetxt('background.txt', n)
+    n, bins, patches = plt.hist(signal[variable], bins=4, range=(115, 135), weights=signal[weights]*10, histtype='step', label='signal')
+    np.savetxt('signalx10.txt', n)
+    n, bins, patches = plt.hist(data[variable], bins=4, range=(115, 135), histtype='step', label='data')
+    np.savetxt('data.txt', n)
+
+    np.savetxt('bins.txt', bins)
 
     plt.xlabel('dimuon mass [GeV]')
     plt.xlim(115, 135)
     plt.ylabel('Events')
     plt.legend()
 
-    plt.savefig('workflow/plots/' + plotname + '.png', bbox_inches='tight')
+    plt.savefig(plotname + '.png', bbox_inches='tight')
     plt.close()
 
     print(f"Saved plot to workflow/plots/{plotname}.png")
 
+    print(n, bins)
 
 def main():
     # Define the file paths of the CSV files
@@ -178,19 +182,23 @@ def main():
     lumi = 59.74 * 1000
 
     background1 = calculate_weights(background1, cross_section_background1, generator_weight_background1, number_of_events_background1 + number_of_events_background2, lumi)
+    background1.to_csv('WZTo3LNu_mllmin0p1_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X_icluding_weights.csv')
     background2 = calculate_weights(background2, cross_section_background2, generator_weight_background2, number_of_events_background1 + number_of_events_background2, lumi)
+    background2.to_csv('WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18NanoAODv9-106X_icluding_weights.csv')
 
     combined_background = pd.concat([background1, background2], ignore_index=True)
 
     signal1 = calculate_weights(signal1, cross_section_signal1, generator_weight_signal1, number_of_events_signal1 + number_of_events_signal2, lumi)
+    signal1.to_csv('WplusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X_icluding_weights.csv')
     signal2 = calculate_weights(signal2, cross_section_signal2, generator_weight_signal2, number_of_events_signal1 + number_of_events_signal2, lumi)
+    signal2.to_csv('WminusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X_icluding_weights.csv')
 
     combined_signal = pd.concat([signal1, signal2], ignore_index=True)
 
     n_back, bins_back, patches_back = histogram_dataset(combined_background, 'm_H', 'weights', 'background')
     n_sig, bins_sig, patches_sig = histogram_dataset(combined_signal, 'm_H', 'weights', 'signal')
 
-    histogram_signal_background(data, combined_signal, combined_background, 'm_H', 'weights', 'signal_and_background')
+    #histogram_signal_background(data, combined_signal, combined_background, 'm_H', 'weights', 'signal_and_background')
 
 
 

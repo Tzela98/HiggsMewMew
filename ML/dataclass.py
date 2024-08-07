@@ -78,19 +78,26 @@ class NtupleDataclass(Dataset):
         return feature_names, features, labels
 
 
-class NtupleDataclassDebugging(Dataset):
+class NtupleDataclass_Dev(Dataset):
     def __init__(self, csv_paths: list, project_name, save_path='/work/ehettwer/HiggsMewMew/ML/tmp/', device='cuda', transform=None, test_size=0.2):
         self.data_frames = [pd.read_csv(path) for path in csv_paths]
         self.transform = transform
 
         # Concatenate all data frames into one
         self.data_frame = pd.concat(self.data_frames, ignore_index=True)
-        # Shuffle all data to mix different classes
-        self.data_frame = self.data_frame.sample(frac=1).reset_index(drop=True)
+        
+        # Separate the 'weights' column and store it
+        self.weights = self.data_frame['weights']
 
-        # Drop unwanted columns
-        columns_to_drop = ['Event', 'id_wgt_mu_1', 'id_wgt_mu_2', 'iso_wgt_mu_1', 'iso_wgt_mu_2', 'trg_sf']
+        # Drop unwanted columns including 'weights'
+        columns_to_drop = ['id_wgt_mu_1', 'id_wgt_mu_2', 'iso_wgt_mu_1', 'iso_wgt_mu_2', 'trg_sf', 'weights', 'genWeight', 'Unnamed: 0', 'Unnamed: 0.1']
         self.data_frame.drop(columns=columns_to_drop, inplace=True)
+
+        # Shuffle all data to mix different classes, keeping weights aligned
+        self.data_frame['weights'] = self.weights
+        self.data_frame = self.data_frame.sample(frac=1, random_state=42).reset_index(drop=True)
+        self.weights = self.data_frame['weights']
+        self.data_frame.drop(columns=['weights'], inplace=True)
 
         train_df, test_df = train_test_split(self.data_frame, test_size=test_size, random_state=42)
         
@@ -98,21 +105,20 @@ class NtupleDataclassDebugging(Dataset):
         self.train_df = train_df.reset_index(drop=True)
         self.test_df = test_df.reset_index(drop=True)
 
-        self.train_df.to_csv(f'{save_path}{project_name}_train.csv', index=False)
-        self.test_df.to_csv(f'{save_path}{project_name}_test.csv', index=False)
+        # Save the train and test data with weights for reference
+        train_df_with_weights = train_df.copy()
+        test_df_with_weights = test_df.copy()
+        train_df_with_weights['weights'] = self.weights.loc[train_df_with_weights.index].values
+        test_df_with_weights['weights'] = self.weights.loc[test_df_with_weights.index].values
 
-        # Extract the labels
-        y_train = self.train_df.iloc[:, -1]
-
-        # Debug statements
-        print("Unique classes in y_train:", np.unique(y_train))
-        print("y_train value counts:\n", y_train.value_counts())
+        train_df_with_weights.to_csv(f'{save_path}{project_name}_train.csv', index=False)
+        test_df_with_weights.to_csv(f'{save_path}{project_name}_test.csv', index=False)
 
         # Calculate class weights
         class_weights = compute_class_weight(
             class_weight='balanced',
-            classes=np.unique(y_train),
-            y=y_train
+            classes=np.unique(self.train_df.iloc[:, -1]),
+            y=self.train_df.iloc[:, -1]
         )       
         
         self.pos_weight = torch.tensor([class_weights[1] / class_weights[0]], dtype=torch.float32, device=device)
@@ -147,4 +153,5 @@ class NtupleDataclassDebugging(Dataset):
         labels = torch.tensor(labels, dtype=torch.float32)
 
         return feature_names, features, labels
+
 
