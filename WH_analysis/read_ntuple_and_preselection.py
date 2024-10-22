@@ -7,6 +7,7 @@ import numpy as np
 from icecream import ic
 from tqdm import tqdm
 import filters as filters
+import os
 
 
 def open_to_dataframe(dataset):
@@ -51,35 +52,31 @@ def filter_muons_from_csv(file_path):
     return filtered_df
 
 
-DYJetsToLL_M_50_path = open_multiple_paths(['/ceph/ehettwer/ntuples/full_training_samples/CROWNRun/2018/DYJetsToLL_M-50*/*/*.root'])
-DYJetsToLL_M_100_path = open_multiple_paths(['/ceph/ehettwer/ntuples/full_training_samples/CROWNRun/2018/DYJetsToLL_M-100*/*/*.root'])
+DYJetsToLL_M_50_path = open_multiple_paths(['/ceph/ehettwer/ntuples/final_run/DYJetsToLL_M-50*/*/*.root'])
+DYJetsToLL_M_100_path = open_multiple_paths(['/ceph/ehettwer/ntuples/final_run/DYJetsToLL_M-100*/*/*.root'])
 
-EWK_LLJJ_path = open_multiple_paths(['/ceph/ehettwer/ntuples/full_training_samples/CROWNRun/2018/EWK_LLJJ*/*/*.root'])
+#EWK_LLJJ_path = open_multiple_paths(['/ceph/ehettwer/ntuples/full_training_samples/CROWNRun/2018/EWK_LLJJ*/*/*.root'])
 
-ST_t_top_path = open_multiple_paths(['/ceph/ehettwer/ntuples/full_training_samples/CROWNRun/2018/ST_t-channel_top_5f*/*/*.root'])
-ST_t_antitop_path = open_multiple_paths(['/ceph/ehettwer/ntuples/full_training_samples/CROWNRun/2018/ST_t-channel_antitop_5f*/*/*.root'])
-TTTo2L2Nu_path = open_multiple_paths(['/ceph/ehettwer/ntuples/full_training_samples/CROWNRun/2018/TTTo2L2Nu*/*/*.root'])
+#ST_t_top_path = open_multiple_paths(['/ceph/ehettwer/ntuples/full_training_samples/CROWNRun/2018/ST_t-channel_top_5f*/*/*.root'])
+#ST_t_antitop_path = open_multiple_paths(['/ceph/ehettwer/ntuples/full_training_samples/CROWNRun/2018/ST_t-channel_antitop_5f*/*/*.root'])
+TTTo2L2Nu_path = open_multiple_paths(['/ceph/ehettwer/ntuples/final_run/TTTo2L2Nu*/*/*.root'])
 TTToSemiLeptonic_path = open_multiple_paths(['/ceph/ehettwer/ntuples/full_training_samples/CROWNRun/2018/TTToSemiLeptonic*/*/*.root'])
 
-WWTo2L2Nu_path = open_multiple_paths(['/ceph/ehettwer/ntuples/full_training_samples/CROWNRun/2018/WWTo2L2Nu*/*/*.root'])
-WZTo3LNu_mllmin_path = open_multiple_paths(['/ceph/ehettwer/ntuples/full_training_samples/CROWNRun/2018/WZTo3LNu_mllmin0p1*/*/*.root'])
-WZTo3LNu_path = open_multiple_paths(['/ceph/ehettwer/ntuples/full_training_samples/CROWNRun/2018/WZTo3LNu_TuneCP5*/*/*.root'])
-ZZTo2L2Nu_path = open_multiple_paths(['/ceph/ehettwer/ntuples/full_training_samples/CROWNRun/2018/ZZTo2L2Nu*/*/*.root'])
-ZZTo4L_path = open_multiple_paths(['/ceph/ehettwer/ntuples/full_training_samples/CROWNRun/2018/ZZTo4L*/*/*.root'])
+#WWTo2L2Nu_path = open_multiple_paths(['/ceph/ehettwer/ntuples/full_training_samples/CROWNRun/2018/WWTo2L2Nu*/*/*.root'])
+WZTo3LNu_mllmin_path = open_multiple_paths(['/ceph/ehettwer/ntuples/final_run/WZTo3LNu_mllmin0p1*/*/*.root'])
+WZTo3LNu_path = open_multiple_paths(['/ceph/ehettwer/ntuples/final_run/WZTo3LNu_TuneCP5*/*/*.root'])
+ZZTo2L2Nu_path = open_multiple_paths(['/ceph/ehettwer/ntuples/final_run/ZZTo2L2Nu*/*/*.root'])
+ZZTo4L_path = open_multiple_paths(['/ceph/ehettwer/ntuples/final_run/ZZTo4L*/*/*.root'])
 
-signal_sim_path1 = open_multiple_paths(['/ceph/ehettwer/ntuples/full_training_samples/CROWNRun/2018/WminusHToMuMu*/*/*.root'])
-signal_sim_path2 = open_multiple_paths(['/ceph/ehettwer/ntuples/full_training_samples/CROWNRun/2018/WplusHToMuMu*/*/*.root'])
+signal_sim_path1 = open_multiple_paths(['/ceph/ehettwer/ntuples/final_run/WminusHToMuMu*/*/*.root'])
+signal_sim_path2 = open_multiple_paths(['/ceph/ehettwer/ntuples/final_run/WplusHToMuMu*/*/*.root'])
 
 
 
 dataset_nicks = ['DYJetsToLL_M-100to200_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18NanoAODv9-106X',
                     'DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18NanoAODv9-106X',
-                    'EWK_LLJJ_MLL-50_MJJ-120_TuneCP5_13TeV-madgraph-pythia8_dipole_RunIISummer20UL18NanoAODv9-106X',
-                    'ST_t-channel_antitop_5f_InclusiveDecays_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X',
-                    'ST_t-channel_top_5f_InclusiveDecays_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X',
                     'TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X',
                     'TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X',
-                    'WWTo2L2Nu_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X',
                     'WZTo3LNu_mllmin0p1_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X',
                     'WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18NanoAODv9-106X',
                     'ZZTo2L2Nu_TuneCP5_13TeV_powheg_pythia8_RunIISummer20UL18NanoAODv9-106X',
@@ -88,13 +85,19 @@ dataset_nicks = ['DYJetsToLL_M-100to200_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunII
                     'WplusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X']
 
 
-data_paths = [DYJetsToLL_M_100_path, DYJetsToLL_M_50_path, EWK_LLJJ_path, ST_t_antitop_path, ST_t_top_path, TTTo2L2Nu_path, 
-              TTToSemiLeptonic_path, WWTo2L2Nu_path, WZTo3LNu_mllmin_path ,WZTo3LNu_path, ZZTo2L2Nu_path, ZZTo4L_path, 
+data_paths = [DYJetsToLL_M_100_path, DYJetsToLL_M_50_path, TTTo2L2Nu_path, 
+              TTToSemiLeptonic_path, WZTo3LNu_mllmin_path ,WZTo3LNu_path, ZZTo2L2Nu_path, ZZTo4L_path, 
               signal_sim_path1, signal_sim_path2]
 
 ic(data_paths)
 
 # Loop through datasets and paths, combine DataFrames, do some more selection and save to CSV
+
+save_path = '/work/ehettwer/HiggsMewMew/data/ntuples_cut_115_135/'
+if not os.path.exists(save_path):
+    os.makedirs(save_path)
+    print('Directory does not exist. Creating directory...')
+    print('Created directory:', save_path)
 
 for dataset_nick, data_path in zip(dataset_nicks, data_paths):
     # leading_jet_pt = 25, sub_leading_jet_pt = 35, threshold_mass = 400, threshold_rapidity = 2.5
@@ -102,15 +105,13 @@ for dataset_nick, data_path in zip(dataset_nicks, data_paths):
     print('-----------------------------------')
     df_combined = combined_dataframes(data_path)
     print('dataset_nick:', dataset_nick)
-    print('length of df_combined:', len(df_combined))
+    print('number of events before mass cut', len(df_combined))
     df_signal_region = df_segmentation(df_combined, 'm_H', (115, 135))
-    print('number of working events: ', len(df_signal_region))
-    df_signal_region.to_csv(f'/work/ehettwer/HiggsMewMew/data/including_genWeight/{dataset_nick}.csv')
+    print('number of events after mass cut: ', len(df_signal_region))
+    df_signal_region.to_csv(save_path + f'{dataset_nick}.csv')
     print(f"Saved {dataset_nick}.csv")
 
-
-
-
+print('Done!')
 
 
 

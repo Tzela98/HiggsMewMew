@@ -8,8 +8,8 @@ import filters as filters
 def open_to_dataframe(dataset):
     events = uproot.open(dataset)
     dataframe = events['ntuple'].arrays(['deltaEta_13', 'deltaEta_23', 'deltaEta_WH', 'deltaPhi_12', 'deltaPhi_13', 'deltaPhi_WH',
-                                        'deltaR_12', 'deltaR_13', 'deltaR_23', 'eta_H', 'm_H', 'phi_H', 'pt_H',
-                                        'pt_1', 'pt_2', 'pt_3', 'nmuons', 'eta_1', 'eta_2'], library="pd")
+                                 'deltaR_12', 'deltaR_13', 'deltaR_23', 'eta_H', 'm_H', 'phi_H', 'pt_H', 'q_1', 'q_2', 'q_3',
+                                 'pt_1', 'pt_2', 'pt_3', 'nmuons', 'eta_1', 'eta_2', 'cosThetaStar12', 'cosThetaStar13', 'cosThetaStar23'], library="pd")
     if dataframe.empty:
         raise ValueError("Dataset is empty.")
     return dataframe

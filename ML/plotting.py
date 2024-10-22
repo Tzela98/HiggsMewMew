@@ -1,3 +1,5 @@
+from tkinter import font
+from turtle import color
 import matplotlib.pyplot as plt
 import mplhep as hep
 import numpy as np
@@ -5,7 +7,6 @@ from sklearn.metrics import roc_curve, auc
 import torch
 
 hep.style.use(hep.style.CMS)
-hep.cms.label(loc=0)
 
 
 class ROCPlotter:
@@ -26,28 +27,30 @@ class ROCPlotter:
         
         # Calculate the Area Under the Curve (AUC)
         roc_auc = auc(fpr, tpr)
+
         self.auc_list.append(roc_auc)
-        self.epoch_list.append(epoch + 1)
+        self.epoch_list.append(int(epoch + 1))
 
     def plot_roc_curve(self, epoch):
-        # Clear the current axes to avoid overlapping plots
-        self.ax.cla()
+        # Get the most recent ROC curve data
+        fpr = self.fpr_list[-1]
+        tpr = self.tpr_list[-1]
+        auc = self.auc_list[-1]
+        latest_epoch = self.epoch_list[-1]
 
-        # Plot each ROC curve with different colors
-        colors = plt.cm.viridis(np.linspace(0, 1, len(self.fpr_list) + 1))
-        for i in range(len(self.fpr_list)):
-            # Plot the ROC curve with color gradients
-            self.ax.plot(self.fpr_list[i], self.tpr_list[i], color=colors[i], lw=2, 
-                        label=f'Epoch {self.epoch_list[i]} (area = {self.auc_list[i]:.4f})')
+        # Plot the most recent ROC curve
+        plt.figure(figsize=(10, 8))
+        plt.plot(fpr, tpr, lw=1.5, label=f'AUC = {auc:.4f} after {latest_epoch} epochs', color='navy')
 
         # Plot the diagonal line
-        self.ax.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-        self.ax.set_xlim(0.0, 1.0)
-        self.ax.set_ylim(0.0, 1.1)
-        self.ax.set_xlabel('False Positive Rate')
-        self.ax.set_ylabel('True Positive Rate')
-        self.ax.set_title('Receiver Operating Characteristic')
-        self.ax.legend(loc="lower right")
+        plt.plot([0, 1], [0, 1], color='orangered', lw=1.5, linestyle='--')
+        plt.xlim(0.0, 1.0)
+        plt.ylim(0.0, 1.1)
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate')
+        plt.title(r'$\mathit{Private\ work}\ \mathrm{\mathbf{CMS\ Simulation}}$', loc='left', pad=10, fontsize=24)
+        plt.title(r'${13\ TeV\ (2018)}$', loc='right', pad=10, fontsize=24)
+        plt.legend(loc="lower right", fontsize=22)
 
         plt.savefig(self.save_path + 'ROC_Curves.png')
         plt.close()
@@ -55,11 +58,12 @@ class ROCPlotter:
         self.fig, self.ax = plt.subplots()  # Reset the figure for the next epoch
 
     def plot_auc(self):
-        plt.figure()
-        plt.plot(range(1, max(self.epoch_list) + 1), self.auc_list, marker='o')
-        plt.xlabel('Epoch')
-        plt.ylabel('AUC')
-        plt.title('AUC vs Epoch')
+        plt.figure(figsize=(10, 8))
+        plt.plot(self.epoch_list, self.auc_list, marker='o', lw=1.5, color='navy')
+        plt.xlabel('Epoch', fontsize=22)
+        plt.ylabel('AUC', fontsize=22)
+        plt.title(r'$\mathit{Private\ work}\ \mathrm{\mathbf{CMS\ Simulation}}$', loc='left', pad=10, fontsize=24)
+        plt.title(r'${13\ TeV\ (2018)}$', loc='right', pad=10, fontsize=24)
         plt.savefig(self.save_path + 'AUC_vs_Epoch.png', bbox_inches='tight')
         plt.close()
 
@@ -69,19 +73,23 @@ class ROCPlotter:
 
 def plot_training_log(log_data, epoch, save_path='/work/ehettwer/HiggsMewMew/ML/projects/test/'):
     fig, ax = plt.subplots(1, 2, figsize=(14, 8))
-    ax[0].plot([entry['epoch'] for entry in log_data], [entry['train_loss'] for entry in log_data], label='Train Loss')
-    ax[0].plot([entry['epoch'] for entry in log_data], [entry['val_loss'] for entry in log_data], label='Val Loss')
+    ax[0].plot([entry['epoch'] for entry in log_data], [entry['train_loss'] for entry in log_data], label='Train Loss', color='navy')
+    ax[0].plot([entry['epoch'] for entry in log_data], [entry['val_loss'] for entry in log_data], label='Val Loss', color='orangered')
     ax[0].set_xlabel('Epoch')
-    ax[0].set_ylabel('Loss')
+    ax[0].set_ylabel('Loss', labelpad=10)  # Adjust labelpad to provide more space
     ax[0].legend()
 
-    ax[1].plot([entry['epoch'] for entry in log_data], [entry['val_accuracy'] for entry in log_data], label='Val Accuracy')
+    ax[1].plot([entry['epoch'] for entry in log_data], [entry['val_accuracy'] for entry in log_data], label='Val Accuracy', color='orangered')
     ax[1].set_xlabel('Epoch')
-    ax[1].set_ylabel('Accuracy')
+    ax[1].set_ylabel('Accuracy', labelpad=10)  # Adjust labelpad to provide more space
     ax[1].legend()
 
+    plt.tight_layout()  # Adjust layout to prevent overlap
+    ax[0].set_title(r'$\mathit{Private\ work}\ \mathrm{\mathbf{CMS\ Simulation}}$', loc='left', pad=10, fontsize=24)
+    ax[1].set_title(r'${13\ TeV\ (2018)}$', loc='right', pad=10, fontsize=24)
     plt.savefig(save_path + f'training_log_epoch.png', bbox_inches="tight")
     plt.close()
+
 
 
 # plot_histogram function plots the histogram of model outputs for signal and background events.
@@ -89,7 +97,7 @@ def plot_training_log(log_data, epoch, save_path='/work/ehettwer/HiggsMewMew/ML/
 # valid_labels: list of labels for validation data (0 or 1).
 
 def plot_histogram(valid_outputs, valid_labels, epoch, save_path='/work/ehettwer/HiggsMewMew/ML/projects/test/'):
-    fig, ax = plt.subplots()
+    plt.figure(figsize=(10, 8))
 
     # Initialize the lists to store outputs based on the label
     valid_outputs_true = []
@@ -106,14 +114,20 @@ def plot_histogram(valid_outputs, valid_labels, epoch, save_path='/work/ehettwer
             # If the label is not 0 or 1, raise a ValueError
             raise ValueError("Labels should be either 0 or 1")
     
-    hist_background, bin_edges = np.histogram(valid_outputs_false, bins=30, range=(0, 1), density=True)
-    hist_signal, _ = np.histogram(valid_outputs_true, bins=30, range=(0, 1), density=True)
+    hist_background, bin_edges = np.histogram(valid_outputs_false, bins=30, range=(0, 1))
+    hist_signal, _ = np.histogram(valid_outputs_true, bins=30, range=(0, 1))
 
-    hep.histplot([hist_background, hist_signal], bins=bin_edges, stack=False, label=['Background', 'Signal'], ax=ax)
+    # Normalize histograms
+    hist_background_normalized = hist_background / hist_background.sum()
+    hist_signal_normalized = hist_signal / hist_signal.sum()
+
+    hep.histplot([hist_background_normalized, hist_signal_normalized], bins=bin_edges, stack=False, label=['Background', 'Signal'], color=['navy', 'orangered'])
     plt.legend()
     plt.xlabel('Prediction')
     plt.ylabel('Frequency')
 
+    plt.title(r'$\mathit{Private\ work}\ \mathrm{\mathbf{CMS\ Simulation}}$', loc='left', pad=10, fontsize=24)
+    plt.title(r'${13\ TeV\ (2018)}$', loc='right', pad=10, fontsize=24)
     plt.savefig(save_path + f'histogram_epoch{epoch + 1}.png', bbox_inches="tight")
     plt.close()
 
@@ -139,6 +153,8 @@ def plot_roc_curve(valid_outputs, valid_labels, epoch, save_path='/work/ehettwer
     plt.ylabel('True Positive Rate')
     plt.title('Receiver Operating Characteristic')
     plt.legend(loc="lower right")
+    plt.title(r'$\mathit{Private\ work}\ \mathrm{\mathbf{CMS\ Simulation}}$', loc='left', pad=10, fontsize=24)
+    plt.title(r'${13\ TeV\ (2018)}$', loc='right', pad=10, fontsize=24)
     plt.savefig(save_path + f'roc_curve_epoch{epoch + 1}.png', bbox_inches="tight")
     plt.close()
 

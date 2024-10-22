@@ -1,0 +1,8 @@
+
+Timestamp: 2024-08-16 23:40:29
+Model Name: all_backgrounds_no_mH_run3
+Batch Size: 210
+Number of Epochs: 150
+Learning Rate: 0.001
+L2 Regularisation: 1e-06
+----------------------------------------

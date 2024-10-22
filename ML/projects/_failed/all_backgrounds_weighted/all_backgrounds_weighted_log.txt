@@ -1,0 +1,16 @@
+
+Timestamp: 2024-08-14 19:47:21
+Model Name: all_backgrounds_weighted
+Batch Size: 210
+Number of Epochs: 120
+Learning Rate: 0.001
+L2 Regularisation: 1e-06
+----------------------------------------
+
+Timestamp: 2024-08-14 19:47:58
+Model Name: all_backgrounds_weighted
+Batch Size: 210
+Number of Epochs: 120
+Learning Rate: 0.001
+L2 Regularisation: 1e-06
+----------------------------------------

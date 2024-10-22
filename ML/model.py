@@ -12,7 +12,7 @@ from datetime import datetime
 
 
 class BinaryClassifier(nn.Module):
-    def __init__(self, input_size=25, hidden_1=256, hidden_2=256, output_size=1):
+    def __init__(self, input_size=25, hidden_1=256, hidden_2=128, output_size=1):
         super(BinaryClassifier, self).__init__()
         self.flatten = nn.Flatten()
         self.fc1 = nn.Linear(input_size, hidden_1)
@@ -70,7 +70,7 @@ class BinaryClassifier(nn.Module):
 
 
 class BinaryClassifierCopy(nn.Module):
-    def __init__(self, input_size=22, hidden_1=256, hidden_2=128, output_size=1):
+    def __init__(self, input_size=25, hidden_1=256, hidden_2=128, output_size=1):
         super(BinaryClassifierCopy, self).__init__()
         self.flatten = nn.Flatten()
         self.fc1 = nn.Linear(input_size, hidden_1)

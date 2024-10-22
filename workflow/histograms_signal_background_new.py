@@ -1,206 +1,109 @@
+from turtle import back, color
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import mplhep as hep
 import glob
+import icecream as ic
 
 hep.style.use(hep.style.CMS)
 hep.cms.label(loc=0)
 
 
-def parse_log_files(file_paths):
-    # Initialize an empty list to store the results
-    results = []
-
-    # Iterate through the list of file paths
-    for file_path in file_paths:
-        # Initialize variables to store the result
-        result = None
-
-        # Open the file in read mode
-        with open(file_path, 'r') as file:
-            # Read all lines from the file
-            lines = file.readlines()
-
-            # Check if the line before the last line ends with "job exit code : 0"
-            if lines[-2].strip() == "job exit code : 0":
-                # Iterate through lines to find the first instance of "all="
-                for line in lines:
-                    if "all=" in line:
-                        # Extract the substring after "all="
-                        start_index = line.find("all=")
-                        result_str = line[start_index + 4:].strip()
-
-                        # Find the end of the integer part
-                        end_index = 0
-                        for char in result_str:
-                            if not char.isdigit():
-                                break
-                            end_index += 1
-
-                        # Extract the integer part
-                        result_str = result_str[:end_index]
-
-                        # Convert the extracted string to an integer
-                        try:
-                            result = int(result_str)
-                        except ValueError:
-                            # Handle the case where the conversion to integer fails
-                            print("Error: Unable to convert '{}' to an integer.".format(result_str))
-                        break  # Stop searching after the first instance
-
-        # Append the result to the list of results
-        results.append(result)
-
-    return np.sum(results)
+def df_segmentation(df, variable, threshold: tuple):
+    if df is None:
+        print('Dataframe is empty. Skipping segmentation...')
+        return None
+    if variable not in df.columns:
+        print(f"Variable '{variable}' not found in DataFrame. Skipping segmentation...")
+        return None
+    df_segmented = df[(df[variable] > threshold[0]) & (df[variable] < threshold[1])]
+    return df_segmented
 
 
-def load_data(file_paths):
-    # Create an empty list to store DataFrames
-    data_frames = []
+def histogram_data_signal_background(data, signal, background_top, background_DY, background_ZZ, background_WZ, variable, number_bins, hist_range, save_path=None):
+    signal_weights = signal['weights']
+    background_WZ_weights = background_WZ['weights']
+    background_ZZ_weights = background_ZZ['weights']
+    background_DY_weights = background_DY['weights']
+    background_top_weights = background_top['weights']
     
-    # Iterate over the list of files
-    for file in file_paths:
-        # Read the CSV file into a DataFrame
-        df = pd.read_csv(file)
-        # Append the DataFrame to the list
-        data_frames.append(df)
-    
-    # Concatenate all DataFrames in the list
-    concatenated_df = pd.concat(data_frames, ignore_index=True)
-    return concatenated_df
+    data = data[variable]
+    signal = signal[variable]
+    background_WZ = background_WZ[variable]
+    background_ZZ = background_ZZ[variable]
+    background_DY = background_DY[variable]
+    background_top = background_top[variable]
 
+    # Create the histograms
+    hist_data, bins = np.histogram(data, bins=number_bins, range=hist_range)
+    np.savetxt('workflow/histogram_data.txt', hist_data)
+    np.savetxt('workflow/bins.txt', bins)
 
-def open_multiple_paths(paths: list):
-    all_paths = []
-    for path in paths:
-        all_paths = all_paths + glob.glob(path, recursive=True)
-    return sorted(all_paths)
+    hist_signal, _ = np.histogram(signal, bins=bins, weights=signal_weights, range=hist_range)
+    np.savetxt('workflow/histogram_signal.txt', hist_signal)
 
+    hist_background_WZ, _ = np.histogram(background_WZ, bins=bins, weights=background_WZ_weights)
+    hist_background_ZZ, _ = np.histogram(background_ZZ, bins=bins, weights=background_ZZ_weights)
+    hist_background_DY, _ = np.histogram(background_DY, bins=bins, weights=background_DY_weights)
+    hist_background_top, _ = np.histogram(background_top, bins=bins, weights=background_top_weights)
 
-def calculate_weights(dataset, cross_section, generator_weight, number_of_events, lumi=59.74 * 1000):
-    id_iso_wgt = dataset['id_wgt_mu_1'] * dataset['iso_wgt_mu_1'] * dataset['id_wgt_mu_2'] * dataset['iso_wgt_mu_2']
-    acceptance = dataset['genWeight'] / (abs(dataset['genWeight']) * generator_weight * number_of_events)
-    weight = id_iso_wgt * acceptance * lumi * cross_section
-    
-    # Insert the new column 'weights' before the last column
-    last_col_idx = len(dataset.columns) - 1
-    dataset.insert(last_col_idx, 'weights', weight)
-    
-    return dataset
+    print('yields WZ:', np.sum(hist_background_WZ))
+    print('yields ZZ:', np.sum(hist_background_ZZ))
+    print('yields DY:', np.sum(hist_background_DY))
+    print('yields top:', np.sum(hist_background_top))
+    print('yields all:', np.sum(hist_background_WZ) + np.sum(hist_background_ZZ) + np.sum(hist_background_DY) + np.sum(hist_background_top))
 
+    combined_background_histogram = hist_background_WZ + hist_background_ZZ + hist_background_DY + hist_background_top
+    np.savetxt('workflow/combined_background_histogram.txt', combined_background_histogram)
 
-def histogram_dataset(dataset, variable, weights, plotname):
+    # Create the stacked histogram
     plt.figure(figsize=(10, 8))
-    n, bins, patches = plt.hist(dataset[variable], bins=4, range=(115, 135), weights=dataset[weights], histtype='step', label=plotname)
+    hep.histplot(hist_data, bins=bins, yerr=True, label='Data', histtype='errorbar', color='black')
+    hep.histplot([hist_background_top, hist_background_DY, hist_background_ZZ, hist_background_WZ], bins=bins, label=['Top', 'DY', 'ZZ', 'WZ'], color=['darkgreen', 'darkorange', 'cyan', 'limegreen'], histtype='fill', alpha=0.7, stack=True)
+    hep.histplot([hist_background_top, hist_background_DY, hist_background_ZZ, hist_background_WZ], bins=bins, histtype='step', lw=0.7, color='black', stack=True)
+    hep.histplot(hist_signal, bins=bins, label='Signal x 20', color='red', histtype='step', alpha=1, lw=1.5)
 
-    plt.xlabel('dimuon mass [GeV]')
-    plt.xlim(115, 135)
-    plt.ylabel('Events')
+    plt.xlabel('Dimuon mass in [GeV]')
+    plt.ylabel('Events/Bin')
+    plt.title(r'$\mathit{Private\ work}\ \mathrm{\mathbf{CMS\ Simulation}}$', loc='left', pad=10, fontsize=24)
+    plt.title(r'${13\ TeV\ (2018)}$', loc='right', pad=10, fontsize=24)
+    plt.xlim(110, 150)
     plt.legend()
-
-    plt.savefig(plotname + '.png', bbox_inches='tight')
+    if save_path:
+        plt.savefig(save_path, bbox_inches='tight')
     plt.close()
 
-    print(f"Saved plot to workflow/plots/{plotname}.png")
-    return n, bins, patches
-
-
-def histogram_signal_background(data, signal, background, variable, weights, plotname):
-    plt.figure(figsize=(10, 8))
-    n, bins, patches = plt.hist(background[variable], bins=4, range=(115, 135), weights=background[weights], histtype='step', label='background')
-    np.savetxt('background.txt', n)
-    n, bins, patches = plt.hist(signal[variable], bins=4, range=(115, 135), weights=signal[weights]*10, histtype='step', label='signal')
-    np.savetxt('signalx10.txt', n)
-    n, bins, patches = plt.hist(data[variable], bins=4, range=(115, 135), histtype='step', label='data')
-    np.savetxt('data.txt', n)
-
-    np.savetxt('bins.txt', bins)
-
-    plt.xlabel('dimuon mass [GeV]')
-    plt.xlim(115, 135)
-    plt.ylabel('Events')
-    plt.legend()
-
-    plt.savefig(plotname + '.png', bbox_inches='tight')
-    plt.close()
-
-    print(f"Saved plot to workflow/plots/{plotname}.png")
-
-    print(n, bins)
 
 def main():
     # Define the file paths of the CSV files
-    background_csv_path1 = '/work/ehettwer/HiggsMewMew/data/including_genWeight/WZTo3LNu_mllmin0p1_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv'
-    background_csv_path2 = '/work/ehettwer/HiggsMewMew/data/including_genWeight/WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18NanoAODv9-106X.csv'
+    background_WZTo3LNu_mllmin0p1_path = '/work/ehettwer/HiggsMewMew/data/ntuples_final_final_loose_cut_weights/WZTo3LNu_mllmin0p1_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv'
+    background_WZTo3LNu_TuneCP5_path = '/work/ehettwer/HiggsMewMew/data/ntuples_final_final_loose_cut_weights/WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18NanoAODv9-106X.csv'
+    backgound_ZZTo4L_path = '/work/ehettwer/HiggsMewMew/data/ntuples_final_final_loose_cut_weights/ZZTo4L_TuneCP5_13TeV_powheg_pythia8_RunIISummer20UL18NanoAODv9-106X.csv'
+    background_DYJets = '/work/ehettwer/HiggsMewMew/data/ntuples_final_final_loose_cut_weights/DYJetsToLL_M-100to200_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18NanoAODv9-106X.csv'
+    background_TTTo2L2Nu = '/work/ehettwer/HiggsMewMew/data/ntuples_final_final_loose_cut_weights/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv'
 
+    signal_Wplus_path = '/work/ehettwer/HiggsMewMew/data/ntuples_final_final_loose_cut_weights/WplusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv'
+    signal_Wminus_path = '/work/ehettwer/HiggsMewMew/data/ntuples_final_final_loose_cut_weights/WminusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv'
 
-    signal_csv_path1 = '/work/ehettwer/HiggsMewMew/data/including_genWeight/WplusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv'
-    signal_csv_path2 = '/work/ehettwer/HiggsMewMew/data/including_genWeight/WminusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv'
-
-    background_log_paths = [
-    '/work/ehettwer/KingMaker/data/logs/full_training_samples/Output/WZTo3LNu_mllmin0p1_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X',
-    '/work/ehettwer/KingMaker/data/logs/full_training_samples/Output/WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18NanoAODv9-106X'
-    ]
-
-    signal_log_paths = [
-    '/work/ehettwer/KingMaker/data/logs/full_sim_samples2/Output/WplusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X',
-    '/work/ehettwer/KingMaker/data/logs/full_sim_samples2/Output/WminusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X'
-    ]
-
-    data_path = '/work/ehettwer/HiggsMewMew/data/WH_selection_data/Single_Muon_Data.csv'
-    data = pd.read_csv(data_path)
-
+    data_csv_path = '/work/ehettwer/HiggsMewMew/data/ntuples_final_final_loose_cut/SingleMuonData.csv'
+    data = df_segmentation(pd.read_csv(data_csv_path), 'm_H', (110, 150))
     
     # Load the data from the CSV files
-    background1 = pd.read_csv(background_csv_path1)
-    background2 = pd.read_csv(background_csv_path2)
+    background_WZTo3LNu_mllmin0p1 = pd.read_csv(background_WZTo3LNu_mllmin0p1_path)
+    background_WZTo3LNu_TuneCP5 = df_segmentation(pd.read_csv(background_WZTo3LNu_TuneCP5_path), 'm_H', (110, 150))
+    background_ZZTo4L = df_segmentation(pd.read_csv(backgound_ZZTo4L_path), 'm_H', (110, 150))
+    background_DYJets = df_segmentation(pd.read_csv(background_DYJets), 'm_H', (110, 150))
+    background_TTTo2L2Nu = df_segmentation(pd.read_csv(background_TTTo2L2Nu), 'm_H', (110, 150))
 
-    signal1 = pd.read_csv(signal_csv_path1)
-    signal2 = pd.read_csv(signal_csv_path2)
+    signal_Wplus = pd.read_csv(signal_Wplus_path)
+    signal_Wminus = pd.read_csv(signal_Wminus_path)
 
-    number_of_events_background1 = parse_log_files(open_multiple_paths([background_log_paths[0] + '/*.txt']))
-    number_of_events_background2 = parse_log_files(open_multiple_paths([background_log_paths[1] + '/*.txt']))
+    signal = df_segmentation(pd.concat([signal_Wplus, signal_Wminus]), 'm_H', (110, 150))
+    print(signal)
 
-    number_of_events_signal1 = parse_log_files(open_multiple_paths([signal_log_paths[0] + '/*.txt']))
-    number_of_events_signal2 = parse_log_files(open_multiple_paths([signal_log_paths[1] + '/*.txt']))
-
-    cross_section_background1 = 62.78
-    cross_section_background2 = 5.257
-
-    #cross_section_signal1 = 0.000867
-    #cross_section_signal2 = 0.0005412
-    cross_section_signal1 = 0.00018
-    cross_section_signal2 = 0.00018
-
-    generator_weight_background1 = 1-2*0.0368
-    generator_weight_background2 = 1-2*0.169
-
-    generator_weight_signal1 = 1-2*0.0276
-    generator_weight_signal2 = 1-2*0.0274
-
-    lumi = 59.74 * 1000
-
-    background1 = calculate_weights(background1, cross_section_background1, generator_weight_background1, number_of_events_background1 + number_of_events_background2, lumi)
-    background1.to_csv('WZTo3LNu_mllmin0p1_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X_icluding_weights.csv')
-    background2 = calculate_weights(background2, cross_section_background2, generator_weight_background2, number_of_events_background1 + number_of_events_background2, lumi)
-    background2.to_csv('WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18NanoAODv9-106X_icluding_weights.csv')
-
-    combined_background = pd.concat([background1, background2], ignore_index=True)
-
-    signal1 = calculate_weights(signal1, cross_section_signal1, generator_weight_signal1, number_of_events_signal1 + number_of_events_signal2, lumi)
-    signal1.to_csv('WplusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X_icluding_weights.csv')
-    signal2 = calculate_weights(signal2, cross_section_signal2, generator_weight_signal2, number_of_events_signal1 + number_of_events_signal2, lumi)
-    signal2.to_csv('WminusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X_icluding_weights.csv')
-
-    combined_signal = pd.concat([signal1, signal2], ignore_index=True)
-
-    n_back, bins_back, patches_back = histogram_dataset(combined_background, 'm_H', 'weights', 'background')
-    n_sig, bins_sig, patches_sig = histogram_dataset(combined_signal, 'm_H', 'weights', 'signal')
-
-    #histogram_signal_background(data, combined_signal, combined_background, 'm_H', 'weights', 'signal_and_background')
-
-
+    histogram_data_signal_background(data, signal, background_TTTo2L2Nu, background_DYJets, background_ZZTo4L,  background_WZTo3LNu_TuneCP5, 'm_H', number_bins=8, hist_range=(110, 150), save_path='workflow/histogram_wide_norm.png')
+    print('Histogram saved as workflow/histogram.png')
 
 if __name__ == '__main__':
     main()

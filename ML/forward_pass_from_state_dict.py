@@ -4,12 +4,14 @@ from sympy import plot, true
 import torch
 from torch.utils.data import DataLoader, TensorDataset
 import os
-from model import BinaryClassifier
+from model import BinaryClassifier, BinaryClassifierCopy
 from sklearn.metrics import roc_curve, auc
 import pandas as pd
 from tqdm import tqdm
 import torch.nn as nn
 
+import mplhep as hep
+hep.style.use(hep.style.CMS)
 
 class ModelEvaluator:
     def __init__(self, model_class, model_path, device='cpu'):
@@ -97,7 +99,11 @@ class ModelEvaluator:
 
                 # Forward pass
                 outputs = self.model(inputs).squeeze()
-                all_outputs.extend((torch.sigmoid(outputs)).cpu().numpy())
+                if outputs.dim() == 0:  # Check if the tensor is 0-dimensional
+                    print("Output tensor is 0-dimensional. Reshaping...")
+                    all_outputs.append(torch.sigmoid(outputs).cpu().numpy())
+                else:
+                    all_outputs.extend(torch.sigmoid(outputs).cpu().numpy())
                 
                 # Ensure outputs and labels are treated as batches
                 if outputs.ndim == 0:
@@ -129,13 +135,13 @@ class ModelEvaluator:
 
 def main():
     # Define the path to the model state dictionary
-    model_path = "/work/ehettwer/HiggsMewMew/ML/projects/WH_vs_WZ_corrected_optimal_DO05_run2/WH_vs_WZ_corrected_optimal_DO05_run2_epoch120.pth"
+    model_path = "/work/ehettwer/HiggsMewMew/ML/projects/all_backgrounds_final_run/all_backgrounds_final_run_epoch110.pth"
 
     # Define the path to the validation data
-    data_path = "/work/ehettwer/HiggsMewMew/ML/projects/WH_vs_WZ_corrected_optimal_DO05_run2/WH_vs_WZ_corrected_optimal_DO05_run2_test.csv"
+    data_path = "/work/ehettwer/HiggsMewMew/ML/projects/all_backgrounds_final_run/all_backgrounds_final_run_test.csv"
 
     # Create a ModelEvaluator object
-    evaluator = ModelEvaluator(BinaryClassifier, model_path)
+    evaluator = ModelEvaluator(BinaryClassifierCopy, model_path)
 
     # Load the validation data
     dataloader, feature_columns, label_column, weigths  = evaluator.load_validation_data(data_path)
@@ -147,22 +153,34 @@ def main():
 
     # Create a DataFrame with only true labels
     df_true_labels = df[df['true_labels'] == True]
+    print(df_true_labels.head(10))
 
     # Create a DataFrame with only false labels
     df_false_labels = df[df['true_labels'] == False]
+    print(df_false_labels.head(10))
 
 
     # Histogram of model predictions
-    n, bins, patches = plt.hist(df_true_labels['predictions'], weights=df_true_labels['weights']*250, bins=10, range=(0, 1) ,histtype='step', alpha=1, label='Signal x 50')
-    np.savetxt('/work/ehettwer/HiggsMewMew/ML/projects/test_two_backgrounds/signal.txt', n)
-    n, bins, patches = plt.hist(df_false_labels['predictions'], weights=df_false_labels['weights']*5 ,bins=10, range=(0,1), histtype='step', alpha=1, label='Background')
-    np.savetxt('/work/ehettwer/HiggsMewMew/ML/projects/test_two_backgrounds/background.txt', n)
-    np.savetxt('/work/ehettwer/HiggsMewMew/ML/projects/test_two_backgrounds/bins.txt', bins)
+    plt.figure(figsize=(10, 8))
+    n, bins = np.histogram(df_false_labels['predictions'], weights=df_false_labels['weights']*5, bins=10, range=(0, 1))
+    hep.histplot(n, bins, label='Background', histtype='fill', alpha=0.3, color='navy')
+    hep.histplot(n, bins, histtype='step', lw=0.7, alpha=1, color='black')
+    #n, bins, patches = plt.hist(df_false_labels['predictions'], weights=df_false_labels['weights']*5 ,bins=10, range=(0,1), histtype='step', alpha=1, label='Background')
+    np.savetxt('/work/ehettwer/HiggsMewMew/ML/projects/all_backgrounds_final_run/background_ML.txt', n)
+    np.savetxt('/work/ehettwer/HiggsMewMew/ML/projects/all_backgrounds_final_run/bins_ML.txt', bins)
 
-    plt.xlabel('Predicted Value')
-    plt.ylabel('Frequency')
+    n, bins = np.histogram(df_true_labels['predictions'],  weights=df_true_labels['weights']*100,  bins=10, range=(0, 1))
+    hep.histplot(n, bins, label='Signal x 20', histtype='step', alpha=1, color='orangered')
+    #n, bins, patches = plt.hist(df_true_labels['predictions'], weights=df_true_labels['weights']*5, bins=10, range=(0, 1) ,histtype='step', alpha=1, label='Signal')
+    np.savetxt('/work/ehettwer/HiggsMewMew/ML/projects/all_backgrounds_final_run/signal_ML.txt', n)
+
+    plt.xlabel('Neural Network Output')
+    plt.ylabel('Events/Bin')
+    plt.title(r'$\mathit{Private\ work}\ \mathrm{\mathbf{CMS}}$', loc='left', pad=10, fontsize=24)
+    plt.title(r'59.7 fb$^{-1}$ at 13 TeV (2018)', loc='right', pad=10, fontsize=24)
+    plt.xlim(0, 1)
     plt.legend()
-    plt.savefig('/work/ehettwer/HiggsMewMew/ML/projects/WH_vs_WZ_corrected_optimal_DO05_run2/predictions_histogramx50.png')
+    plt.savefig('/work/ehettwer/HiggsMewMew/ML/projects/all_backgrounds_final_run/wh_neural_network_output.png', bbox_inches='tight')
 
     print('All done!')
 

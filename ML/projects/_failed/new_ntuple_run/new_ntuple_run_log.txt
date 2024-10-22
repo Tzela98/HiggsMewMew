@@ -1,0 +1,40 @@
+
+Timestamp: 2024-08-08 18:52:01
+Model Name: new_ntuple_run
+Batch Size: 72
+Number of Epochs: 120
+Learning Rate: 0.0005
+L2 Regularisation: 1e-05
+----------------------------------------
+
+Timestamp: 2024-08-08 19:05:37
+Model Name: new_ntuple_run
+Batch Size: 72
+Number of Epochs: 120
+Learning Rate: 0.0005
+L2 Regularisation: 1e-05
+----------------------------------------
+
+Timestamp: 2024-08-08 19:06:46
+Model Name: new_ntuple_run
+Batch Size: 72
+Number of Epochs: 120
+Learning Rate: 0.0005
+L2 Regularisation: 1e-05
+----------------------------------------
+
+Timestamp: 2024-08-08 19:10:31
+Model Name: new_ntuple_run
+Batch Size: 72
+Number of Epochs: 120
+Learning Rate: 0.0005
+L2 Regularisation: 1e-05
+----------------------------------------
+
+Timestamp: 2024-08-08 20:37:50
+Model Name: new_ntuple_run
+Batch Size: 72
+Number of Epochs: 120
+Learning Rate: 0.0005
+L2 Regularisation: 1e-05
+----------------------------------------

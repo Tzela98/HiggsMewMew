@@ -256,7 +256,7 @@ class ModelEvaluator:
         roc_auc = auc(fpr, tpr)
         
         plt.figure()
-        plt.plot(fpr, tpr, lw=1, label='ROC curve (area = %0.2f)' % roc_auc)
+        plt.plot(fpr, tpr, lw=1, label='ROC curve (area = %0.4f)' % roc_auc)
         plt.plot([0, 1], [0, 1], color='navy', lw=1, linestyle='--')
         plt.xlim([0.0, 1.0])
         plt.ylim([0.0, 1.05])
@@ -348,8 +348,8 @@ class simple_mass_cut:
 
 
 # Example usage
-model_state_dict = '/work/ehettwer/HiggsMewMew/ML/projects/WH_vs_WZ_corrected_optimal_DO05_run2/WH_vs_WZ_corrected_optimal_DO05_run2_epoch120.pth'
-validation_data_path = '/work/ehettwer/HiggsMewMew/ML/projects/WH_vs_WZ_corrected_optimal_DO05_run2/WH_vs_WZ_corrected_optimal_DO05_run2_test.csv'
+model_state_dict = '/work/ehettwer/HiggsMewMew/ML/projects/all_backgrounds_unweighted/all_backgrounds_unweighted_epoch120.pth'
+validation_data_path = '/work/ehettwer/HiggsMewMew/ML/projects/WH_vs_WZ_final/WH_vs_WZ_final_test.csv'
 intervals = [(0.0, 0.5), (0.5, 0.7), (0.7, 0.9), (0.9, 1.0)]
 
 model_class = BinaryClassifier
@@ -362,7 +362,7 @@ for interval, dataset in interval_datasets.items():
     print(f'Interval {interval}: {len(dataset)} samples')
     print(dataset.head())
 
-path_head = '/work/ehettwer/HiggsMewMew/ML/projects/WH_vs_WZ_corrected_optimal_DO05_run2/'
+path_head = '/work/ehettwer/HiggsMewMew/ML/projects/test/'
 plot_directory_individual = path_head + 'interval_plots_individual'
 plot_directory_one_plot = path_head + 'interval_plots_one_plot'
 plot_directory_sb = path_head + 'interval_plots_sb'
@@ -371,7 +371,7 @@ plot_directory_roc = path_head + 'roc_plots'
 
 #evaluator.plot_and_save_intervals_individual(interval_datasets, plot_directory_individual)
 #evaluator.plot_and_save_intervals_one_plot(interval_datasets, plot_directory_one_plot)
-evaluator.plot_and_save_intervals_signal_vs_background(interval_datasets, plot_directory_sb)
+#evaluator.plot_and_save_intervals_signal_vs_background(interval_datasets, plot_directory_sb)
 evaluator.plot_roc_curve(validation_loader, plot_directory_roc)
 
 #mass_cut = simple_mass_cut(validation_data_path)

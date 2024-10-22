@@ -1,0 +1,16 @@
+
+Timestamp: 2024-08-11 23:12:08
+Model Name: new_ntuple_opt
+Batch Size: 210
+Number of Epochs: 120
+Learning Rate: 0.001
+L2 Regularisation: 1e-06
+----------------------------------------
+
+Timestamp: 2024-08-11 23:16:17
+Model Name: new_ntuple_opt
+Batch Size: 210
+Number of Epochs: 120
+Learning Rate: 0.001
+L2 Regularisation: 1e-06
+----------------------------------------

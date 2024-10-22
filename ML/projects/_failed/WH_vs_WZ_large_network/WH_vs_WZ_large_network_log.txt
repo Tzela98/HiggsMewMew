@@ -1,0 +1,8 @@
+
+Timestamp: 2024-08-07 23:30:41
+Model Name: WH_vs_WZ_large_network
+Batch Size: 72
+Number of Epochs: 120
+Learning Rate: 0.0006
+L2 Regularisation: 1e-05
+----------------------------------------

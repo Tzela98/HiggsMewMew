@@ -1,0 +1,48 @@
+
+Timestamp: 2024-08-16 02:33:26
+Model Name: all_backgrounds_no_mH
+Batch Size: 210
+Number of Epochs: 120
+Learning Rate: 0.001
+L2 Regularisation: 1e-06
+----------------------------------------
+
+Timestamp: 2024-08-16 02:36:46
+Model Name: all_backgrounds_no_mH
+Batch Size: 210
+Number of Epochs: 120
+Learning Rate: 0.001
+L2 Regularisation: 1e-06
+----------------------------------------
+
+Timestamp: 2024-08-16 02:40:14
+Model Name: all_backgrounds_no_mH
+Batch Size: 210
+Number of Epochs: 120
+Learning Rate: 0.001
+L2 Regularisation: 1e-06
+----------------------------------------
+
+Timestamp: 2024-08-16 02:41:22
+Model Name: all_backgrounds_no_mH
+Batch Size: 210
+Number of Epochs: 120
+Learning Rate: 0.001
+L2 Regularisation: 1e-06
+----------------------------------------
+
+Timestamp: 2024-08-16 02:42:31
+Model Name: all_backgrounds_no_mH
+Batch Size: 210
+Number of Epochs: 120
+Learning Rate: 0.001
+L2 Regularisation: 1e-06
+----------------------------------------
+
+Timestamp: 2024-08-16 02:44:29
+Model Name: all_backgrounds_no_mH
+Batch Size: 210
+Number of Epochs: 120
+Learning Rate: 0.001
+L2 Regularisation: 1e-06
+----------------------------------------

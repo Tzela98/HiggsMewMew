@@ -5,7 +5,7 @@ import torch.optim as optim
 import torch.nn as nn
 import icecream as ic
 from torch.utils.data import DataLoader, TensorDataset
-from dataclass import NtupleDataclass, NtupleDataclass_Dev
+from dataclass import NtupleDataclass, NtupleDataclass_Dev, NtupleDataclass_vbf
 from model import BinaryClassifier, BinaryClassifierCopy
 from training import train_model, evaluate_model
 from plotting import plot_training_log, plot_histogram, plot_feature_importance_autograd, ROCPlotter
@@ -41,10 +41,10 @@ def main():
     # Default values
     default_model_name = 'test'
     default_model_path = '/work/ehettwer/HiggsMewMew/ML/projects/'
-    default_batch_size = 128
-    default_num_epochs = 100
-    default_learning_rate = 0.0015
-    default_L2_regularisation = 1e-4
+    default_batch_size = 64
+    default_num_epochs = 20
+    default_learning_rate = 0.0005
+    default_L2_regularisation = 1e-5
 
     use_defaults = input("Do you want to use default values? (y/n): ").strip().lower() == 'y'
 
@@ -71,25 +71,34 @@ def main():
     # Log the training details
     save_log_data(create_path, model_name, batch_size, num_epochs, learning_rate, L2_regularisation)
 
-    # Example file paths (replace with actual CSV file paths)
-    #    '/ceph/ehettwer/working_data/full_sim/ZZTo4L_TuneCP5_13TeV_powheg_pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
-    #    '/ceph/ehettwer/working_data/full_sim/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv'
-
+    '''
     csv_paths = [
-    '/work/ehettwer/HiggsMewMew/WZTo3LNu_mllmin0p1_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X_icluding_weights.csv',
-    '/work/ehettwer/HiggsMewMew/WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18NanoAODv9-106X_icluding_weights.csv',
-    '/work/ehettwer/HiggsMewMew/WplusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X_icluding_weights.csv',
-    '/work/ehettwer/HiggsMewMew/WminusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X_icluding_weights.csv'
+    '/work/ehettwer/HiggsMewMew/data/ntuples_final_final_tight_cut_weights/WZTo3LNu_mllmin0p1_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
+    '/work/ehettwer/HiggsMewMew/data/ntuples_final_final_tight_cut_weights/WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
+    '/work/ehettwer/HiggsMewMew/data/ntuples_final_final_tight_cut_weights/WplusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
+    '/work/ehettwer/HiggsMewMew/data/ntuples_final_final_tight_cut_weights/WminusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
+    '/work/ehettwer/HiggsMewMew/data/ntuples_final_final_tight_cut_weights/ZZTo4L_TuneCP5_13TeV_powheg_pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
+    '/work/ehettwer/HiggsMewMew/data/ntuples_final_final_tight_cut_weights/DYJetsToLL_M-100to200_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
+    '/work/ehettwer/HiggsMewMew/data/ntuples_final_final_tight_cut_weights/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv'
     ]
+    '''
+    
 
-    # '/work/ehettwer/HiggsMewMew/ZZTo4L_TuneCP5_13TeV_powheg_pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
+    
+    csv_paths = [
+        '/work/ehettwer/HiggsMewMew/data/vbf_ntuples_tight_cut_weights/DYJetsToLL_M-100to200_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
+        '/work/ehettwer/HiggsMewMew/data/vbf_ntuples_tight_cut_weights/GluGluHToMuMu_M-125_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
+        '/work/ehettwer/HiggsMewMew/data/vbf_ntuples_tight_cut_weights/VBFHToMuMu_M125_TuneCP5_withDipoleRecoil_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv',
+        '/work/ehettwer/HiggsMewMew/data/vbf_ntuples_tight_cut_weights/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8_RunIISummer20UL18NanoAODv9-106X.csv'
+    ]
+    
 
     print('Sourcing the training data from the following CSV files:')
     for path in csv_paths:
         print(path)
 
     # Dataset and DataLoader
-    dataset = NtupleDataclass_Dev(csv_paths, project_name=model_name, save_path=create_path, device=device)
+    dataset = NtupleDataclass_vbf(csv_paths, project_name=model_name, save_path=create_path, device=device)
     train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
     
     # Test data
@@ -120,7 +129,7 @@ def main():
     early_stop_counter = 0
     smallest_loss = 1000
 
-    combinations = [(0,), (1,), (2,), (3,), (4,), (5,), (6,), (7,), (8,), (9,), (10,),(11,), (12,), (13,), (14,), (15,), (16,), (17,), (18,), (19,), (20,), (21,)]  # 1st order taylor coefficients
+    combinations = [(0,), (1,), (2,), (3,), (4,), (5,), (6,), (7,), (8,), (9,), (10,),(11,), (12,), (13,), (14,), (15,), (16,)]  # 1st order taylor coefficients
     # combinations += [i for i in itertools.permutations([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], 2)]  # 2nd order Taylor coefficients
 
     for epoch in range(num_epochs):
@@ -159,15 +168,19 @@ def main():
 
         log_data.append(epoch_data)
 
-        # Save model checkpoint every 10 epochs
-        if (epoch + 1) % 2 == 0:
-            plot_histogram(valid_output, valid_labels, epoch, save_path=create_path)
-            plot_training_log(log_data, epoch, save_path=create_path)
-            plot_feature_importance_autograd(model, feature_names, test_features, device, epoch, save_path=create_path)
+        # Save every Epoch
+        plot_training_log(log_data, epoch, save_path=create_path)
+        roc_plotter.calculate_ROC(valid_output, valid_labels, epoch)
+        roc_plotter.plot_auc()
+        roc_plotter.plot_roc_curve(epoch)
 
-            roc_plotter.calculate_ROC(valid_output, valid_labels, epoch)
-            roc_plotter.plot_roc_curve(epoch)
-            roc_plotter.plot_auc()
+        # Save model checkpoint every 10 epochs
+        # frac denotes the number of epochs after which the model checkpoint is saved and the plots are created
+        frac = 10
+
+        if (epoch + 1) % frac == 0:
+            plot_histogram(valid_output, valid_labels, epoch, save_path=create_path)
+            plot_feature_importance_autograd(model, feature_names, test_features, device, epoch, save_path=create_path)
 
             torch.save(model.state_dict(), create_path + f'{model_name}_epoch{epoch + 1}.pth')
 
@@ -202,7 +215,7 @@ def main():
         else:
             early_stop_counter += 1
 
-        if early_stop_counter >= 20:
+        if early_stop_counter >= 15:
             print('------------------------------------')
             print("ATTENTION: THE TRAINING HAS BEEN STOPPED EARLY DUE TO NO IMPROVEMENT IN VALIDATION LOSS.")
             print('please refer to the training log for more details')

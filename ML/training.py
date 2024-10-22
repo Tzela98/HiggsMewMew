@@ -49,6 +49,7 @@ def train_model(train_loader, model, criterion, optimizer, device, clip_grad=Non
     return avg_loss
 
 
+
 # evaluate_model function evaluates the model using the validation data.
 # returns: average loss, accuracy, and predictions for the validation data.
 

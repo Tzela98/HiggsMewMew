@@ -18,8 +18,10 @@ from sklearn.utils.class_weight import compute_class_weight
 
 class CSVDataset(Dataset):
     def __init__(self, csv_file, device='cuda', transform=None):
+        self.device = device  # Store device
         self.data_frame = pd.read_csv(csv_file)
         self.transform = transform
+        self.data_frame.drop(columns=['weights'], inplace=True)
 
         class_weights = compute_class_weight(
             class_weight='balanced',
@@ -27,29 +29,26 @@ class CSVDataset(Dataset):
             y=self.data_frame.iloc[:, -1]
         )       
         
-        self.pos_weight = torch.tensor([class_weights[1] / class_weights[0]], dtype=torch.float32, device=device)
+        self.pos_weight = torch.tensor([class_weights[1] / class_weights[0]], dtype=torch.float32, device=self.device)
         self.num_features = self.data_frame.shape[1] - 1
 
     def __len__(self):
         return len(self.data_frame)
     
     def __getitem__(self, idx):
-        # Select all columns except the last one as features
-        features = self.data_frame.iloc[idx, :-1].values.astype('float32')
-
-        try:
-            # Select the last column as the label
-            label = self.data_frame.iloc[idx, -1].astype('float32')
-        except ValueError as e:
-            raise Exception(f"Error converting label to float at index {idx}. Error: {e}")
-
+        label_column = 'is_wh'
+        feature_columns = [col for col in self.data_frame.columns if col != label_column]
+        
+        # Extract the features and label for the given index
+        features = self.data_frame.iloc[idx][feature_columns].values.astype(np.float32)
+        label = self.data_frame.iloc[idx][label_column].astype(np.float32)
+        
+        # Apply any transformations if specified
         if self.transform:
             features = self.transform(features)
         
-        features = torch.tensor(features, dtype=torch.float32)
-        label = torch.tensor(label, dtype=torch.float32)
-        
-        return features, label
+        # Move the tensors to the appropriate device
+        return torch.tensor(features, device=self.device), torch.tensor(label, device=self.device)
 
     def get_num_features(self):
         return self.num_features
@@ -67,8 +66,8 @@ def objective(params):
         else 'cpu'
     )
 
-    training_data = CSVDataset('/work/ehettwer/HiggsMewMew/ML/projects/bayesian_optimisation/WH_vs_WZ_corrected_DO05_train.csv')
-    test_data = CSVDataset('/work/ehettwer/HiggsMewMew/ML/projects/bayesian_optimisation/WH_vs_WZ_corrected_DO05_test.csv')
+    training_data = CSVDataset('/work/ehettwer/HiggsMewMew/ML/projects/bayesian_optimisation/new_ntuple_run_train.csv', device=device)
+    test_data = CSVDataset('/work/ehettwer/HiggsMewMew/ML/projects/bayesian_optimisation/new_ntuple_run_test.csv', device=device)
 
     training_loader = DataLoader(training_data, batch_size=batch_size, shuffle=True, drop_last=True)
     test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False, drop_last=True)
@@ -82,7 +81,6 @@ def objective(params):
     optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=L2_regularisation)
 
     # Training loop
-    # Initialize early stopping variables
     smallest_loss = float('inf')
     early_stop_counter = 0
     patience = 10
@@ -116,19 +114,16 @@ def objective(params):
         else:
             early_stop_counter += 1  # Increment counter if no improvement
         
-        # Check if early stopping condition is met
         if early_stop_counter >= patience:
             print('------------------------------------')
             print("ATTENTION: THE TRAINING HAS BEEN STOPPED EARLY DUE TO NO IMPROVEMENT IN VALIDATION LOSS.")
             print('Please refer to the training log for more details.')
             print('------------------------------------')
-            break  # Exit the training loop
+            break
 
-    # Return validation loss as the objective
     return smallest_loss
 
 def main():
-    # Set a device to run the model on
     device = (
         'cuda'
         if torch.cuda.is_available()
@@ -138,18 +133,17 @@ def main():
     # Define the search space for Bayesian optimization
     space = [Real(0.0001, 0.001, name='learning_rate'),
              Integer(64, 256, name='batch_size'),
-             Real(0.00001, 0.001, name='L2_regularisation')]
+             Real(0.000001, 0.001, name='L2_regularisation')]
 
     x0 = [0.004, 170, 0.00001]
     
     # Perform Bayesian optimization
-    res = gp_minimize(objective, space, n_calls=20, random_state=42, verbose=True)
+    res = gp_minimize(objective, space, n_calls=40, random_state=42, verbose=True)
     print(res)
 
     # Get the optimal hyperparameters
     best_params = res.x
 
-    # Print the best parameters found
     print('------------------------------------')
     print("ATTENTION, THE BEST PARAMETERS ARE: ", best_params)
     print('------------------------------------')
